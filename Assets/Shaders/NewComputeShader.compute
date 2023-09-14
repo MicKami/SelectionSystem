@@ -1,0 +1,44 @@
+#pragma kernel Main
+#pragma kernel Initialize
+#pragma warning (disable : 3571)
+
+float4 LinearToSRGB(float4 linearColor);
+
+Texture2D<float4> Input;
+RWStructuredBuffer<uint> Output;
+float4 Rect;
+
+[numthreads(8, 8, 1)]
+void Main(uint2 id : SV_DispatchThreadID)
+{
+	if (id.x < (uint)Rect.z && id.y < (uint)Rect.w)
+	{
+		float4 color = LinearToSRGB(Input[id.xy + Rect.xy]);
+		uint packedR = uint(color.r * 255);
+		uint packedG = uint(color.g * 255) << 8; // shift bits over 8 places
+		uint packedB = uint(color.b * 255) << 16; // shift bits over 16 places
+		uint packedA = uint(color.a * 255) << 24; // shift bits over 24 places
+		uint packedColor = packedR + packedG + packedB + packedA;
+		Output[packedColor] = 1;
+	}
+}
+
+[numthreads(64, 1, 1)]
+void Initialize(uint id : SV_DispatchThreadID)
+{
+	Output[id] = 0;
+}
+
+float4 LinearToSRGB(float4 linearColor)
+{
+	// Convert each channel from linear to sRGB
+	float4 sRGBColor;
+	sRGBColor.r = linearColor.r <= 0.0031308 ? linearColor.r * 12.92 : pow(linearColor.r, 1.0 / 2.4) * 1.055 - 0.055;
+	sRGBColor.g = linearColor.g <= 0.0031308 ? linearColor.g * 12.92 : pow(linearColor.g, 1.0 / 2.4) * 1.055 - 0.055;
+	sRGBColor.b = linearColor.b <= 0.0031308 ? linearColor.b * 12.92 : pow(linearColor.b, 1.0 / 2.4) * 1.055 - 0.055;
+	sRGBColor.a = linearColor.a <= 0.0031308 ? linearColor.a * 12.92 : pow(linearColor.a, 1.0 / 2.4) * 1.055 - 0.055;
+
+	// Return the result as a float4
+	return sRGBColor;
+}
+
