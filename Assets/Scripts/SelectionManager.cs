@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public class SelectionManager : MonoBehaviour
 {
-    public SelectionData selectionData;
-
     public Material selectableID;
     public Material selectionUnlit;
     public Material composite;
@@ -21,7 +20,6 @@ public class SelectionManager : MonoBehaviour
     private bool isDragging;
     private Vector2 dragBeginPosition;
     private Rect selectionRect;
-    private Dictionary<uint, Selectable> selectablesLookup;
 
     public ComputeShader computeShader;
     int initializedKernelID;
@@ -30,14 +28,6 @@ public class SelectionManager : MonoBehaviour
 
     MaterialPropertyBlock materialPropertyBlock;
 
-    private void Start()
-    {
-        selectablesLookup = new();
-        foreach (var selectable in selectionData.Selectables)
-        {
-            selectablesLookup.Add(selectable.ID, selectable);
-        }
-    }
     private void OnEnable()
     {
         materialPropertyBlock = new MaterialPropertyBlock();
@@ -59,7 +49,7 @@ public class SelectionManager : MonoBehaviour
         cmd.SetRenderTarget(selectableRT);
         cmd.ClearRenderTarget(false, true, Color.clear);
 
-        foreach (var selectable in selectionData.Selectables)
+        foreach (var selectable in Selection.Selectables.Values)
         {
             var renderer = selectable.Renderer;
             materialPropertyBlock.Clear();
@@ -71,7 +61,7 @@ public class SelectionManager : MonoBehaviour
         context.ExecuteCommandBuffer(cmd);
         context.Submit();
 
-        foreach (var selectable in selectionData.Selectables)
+        foreach (var selectable in Selection.Selectables.Values)
         {
             var renderer = selectable.Renderer;
             renderer.SetPropertyBlock(null);
@@ -188,16 +178,18 @@ public class SelectionManager : MonoBehaviour
             {
                 SampleRenderTextureAtPosition(MousePosition(), selectableRT, request =>
                 {
-                    selectionData.Hover.Clear();
+                    Selection.Hover.Clear();
                     var data = request.GetData<Color32>();
-                    uint id = Selectable.ColorToID(data[0]);
-                    if (id != 0) selectionData.Hover.Add(selectablesLookup[id]);
+                    uint id = SelectableBase.ColorToID(data[0]);
+                    if (id != 0) Selection.Hover.Add(Selection.Selectables[id]);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        selectionData.Selection.Clear();
+                        Selection.Active.ForEach(s => s.Deselect());
+                        Selection.Active.Clear();
                         if (id != 0)
                         {
-                            selectionData.Selection.Add(selectablesLookup[id]);
+                            Selection.Active.Add(Selection.Selectables[id]);
+                            Selection.Selectables[id].Select();
                         }
                     }
                     data.Dispose();
@@ -225,12 +217,14 @@ public class SelectionManager : MonoBehaviour
             UniqueIDsFromRT(selectableRT, selectionRect, request =>
             {
                 var resultIDs = request.GetData<uint>();
-                selectionData.Selection.Clear();
+                Selection.Active.ForEach(s => s.Deselect());
+                Selection.Active.Clear();
                 for (uint i = 1; i < resultIDs.Length; i++)
                 {
                     if (resultIDs[(int)i] > 0)
                     {
-                        selectionData.Selection.Add(selectablesLookup[i]);
+                        Selection.Active.Add(Selection.Selectables[i]);
+                        Selection.Selectables[i].Select();
                     }
                 }
             });
@@ -285,16 +279,16 @@ public class SelectionManager : MonoBehaviour
     public void UniqueIDsFromRT(RenderTexture renderTexture, Rect rect, Action<AsyncGPUReadbackRequest> callback)
     {
 
-        outputBuffer = new ComputeBuffer((int)Selectable.IDsCount + 1, sizeof(uint));
+        outputBuffer = new ComputeBuffer((int)SelectableBase.IDsCount + 1, sizeof(uint));
 
         computeShader.SetBuffer(initializedKernelID, "Output", outputBuffer);
         computeShader.SetBuffer(mainKernelID, "Output", outputBuffer);
         computeShader.SetTexture(mainKernelID, "Input", renderTexture);
         computeShader.SetVector("Rect", new Vector4(rect.x, rect.y, rect.width, rect.height));
-        computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt((int)Selectable.IDsCount / 64f), 1, 1);
+        print(SelectableBase.IDsCount);
+        computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt((int)SelectableBase.IDsCount / 64f), 1, 1);
 
         var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(rect.width / 8f), Mathf.CeilToInt(rect.height / 8f));
-
         computeShader.Dispatch(mainKernelID, threadGroupsX, threadGroupsY, 1);
         AsyncGPUReadback.Request(outputBuffer, callback);
         outputBuffer.Dispose();
@@ -302,18 +296,19 @@ public class SelectionManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (selectionData.Hover.Count > 0)
+        if(!EditorApplication.isPlaying) return;
+        if (Selection.Hover.Count > 0)
         {
             Gizmos.color = Color.magenta;
-            foreach (var hover in selectionData.Hover)
+            foreach (var hover in Selection.Hover)
             {
                 Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
             }
         }
-        if (selectionData.Selection.Count > 0)
+        if (Selection.Active.Count > 0)
         {
             Gizmos.color = Color.white;
-            foreach (var selection in selectionData.Selection)
+            foreach (var selection in Selection.Active)
             {
                 Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
             }

@@ -2,27 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Selectable : MonoBehaviour
+public abstract class SelectableBase : MonoBehaviour
 {
     public static uint IDsCount { get; private set; }
-    [RuntimeInitializeOnLoadMethod]
-    private static void InitIDs()
+    [RuntimeInitializeOnLoadMethod(loadType: RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Initialize()
     {
         IDsCount = 0;
     }
-
-    [field: SerializeField]
-    public SelectionData SelectionData { get; set; }
     public uint ID { get; private set; }
     public Color32 Color32 { get; private set; }
     public Renderer Renderer{ get; private set; }
 
-    private void Start()
+    protected virtual void Awake()
     {
         ID = GetNextUniqueID();
         Color32 = IDToColor(ID);
-        Renderer = GetComponent<Renderer>();
-    }    
+        Renderer = GetComponentInChildren<Renderer>(true);
+        if (Renderer == null) Renderer = GetComponentInParent<Renderer>(true);
+        if (Renderer == null) Debug.LogWarning("No Renderer component found!");
+    }
+
+    public abstract void Select();
+    public abstract void Deselect();
 
     private uint GetNextUniqueID()
     {
@@ -41,12 +43,10 @@ public class Selectable : MonoBehaviour
 
     private void OnEnable()
     {
-        if (!SelectionData.Selectables.Contains(this))
-            SelectionData.Selectables.Add(this);
+        Selection.AddSelectable(this);
     }
     private void OnDisable()
     {
-        if (SelectionData.Selectables.Contains(this))
-            SelectionData.Selectables.Remove(this);
+        Selection.RemoveSelectable(this);
     }
 }
