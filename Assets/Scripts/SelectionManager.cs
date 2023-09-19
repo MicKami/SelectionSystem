@@ -49,7 +49,7 @@ public class SelectionManager : MonoBehaviour
         cmd.SetRenderTarget(selectableRT);
         cmd.ClearRenderTarget(false, true, Color.clear);
 
-        foreach (var selectable in Selection.Selectables.Values)
+        foreach (var selectable in Selection.Selectables)
         {
             var renderer = selectable.Renderer;
             materialPropertyBlock.Clear();
@@ -61,7 +61,7 @@ public class SelectionManager : MonoBehaviour
         context.ExecuteCommandBuffer(cmd);
         context.Submit();
 
-        foreach (var selectable in Selection.Selectables.Values)
+        foreach (var selectable in Selection.Selectables)
         {
             var renderer = selectable.Renderer;
             renderer.SetPropertyBlock(null);
@@ -178,19 +178,12 @@ public class SelectionManager : MonoBehaviour
             {
                 SampleRenderTextureAtPosition(MousePosition(), selectableRT, request =>
                 {
-                    Selection.Hover.Clear();
                     var data = request.GetData<Color32>();
                     uint id = SelectableBase.ColorToID(data[0]);
-                    if (id != 0) Selection.Hover.Add(Selection.Selectables[id]);
+                    Selection.SetHover(id);
                     if (Input.GetMouseButtonDown(0))
                     {
-                        Selection.Active.ForEach(s => s.Deselect());
-                        Selection.Active.Clear();
-                        if (id != 0)
-                        {
-                            Selection.Active.Add(Selection.Selectables[id]);
-                            Selection.Selectables[id].Select();
-                        }
+                        Selection.Set(id);
                     }
                     data.Dispose();
                 }
@@ -216,16 +209,21 @@ public class SelectionManager : MonoBehaviour
         {
             UniqueIDsFromRT(selectableRT, selectionRect, request =>
             {
-                var resultIDs = request.GetData<uint>();
-                Selection.Active.ForEach(s => s.Deselect());
-                Selection.Active.Clear();
-                for (uint i = 1; i < resultIDs.Length; i++)
+                var result = request.GetData<uint>();
+                List<uint> ids = new();
+
+                for (uint i = 1; i < result.Length; i++)
                 {
-                    if (resultIDs[(int)i] > 0)
+                    if (result[(int)i] > 0)
                     {
-                        Selection.Active.Add(Selection.Selectables[i]);
-                        Selection.Selectables[i].Select();
+                        ids.Add(i);
                     }
+                }
+                Selection.SetHover(ids);
+                if (Input.GetMouseButtonUp(0))
+                {
+                    Selection.ClearHover();
+                    Selection.Add(ids);
                 }
             });
         }
@@ -285,7 +283,6 @@ public class SelectionManager : MonoBehaviour
         computeShader.SetBuffer(mainKernelID, "Output", outputBuffer);
         computeShader.SetTexture(mainKernelID, "Input", renderTexture);
         computeShader.SetVector("Rect", new Vector4(rect.x, rect.y, rect.width, rect.height));
-        print(SelectableBase.IDsCount);
         computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt((int)SelectableBase.IDsCount / 64f), 1, 1);
 
         var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(rect.width / 8f), Mathf.CeilToInt(rect.height / 8f));
@@ -296,7 +293,7 @@ public class SelectionManager : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if(!EditorApplication.isPlaying) return;
+        if (!EditorApplication.isPlaying) return;
         if (Selection.Hover.Count > 0)
         {
             Gizmos.color = Color.magenta;

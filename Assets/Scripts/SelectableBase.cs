@@ -43,10 +43,10 @@ public abstract class SelectableBase : MonoBehaviour
 
     private void OnEnable()
     {
-        Selection.AddSelectable(this);
+        Selection.Register(this);
     }
     private void OnDisable()
     {
-        Selection.RemoveSelectable(this);
+        Selection.Unregister(this);
     }
 }
