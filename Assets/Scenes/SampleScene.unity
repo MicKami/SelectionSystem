@@ -1016,6 +1016,7 @@ GameObject:
   - component: {fileID: 1026775382}
   - component: {fileID: 1026775384}
   - component: {fileID: 1026775383}
+  - component: {fileID: 1026775385}
   m_Layer: 0
   m_Name: SelectableManager
   m_TagString: Untagged
@@ -1064,6 +1065,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   downscaleFactor: 0
+--- !u!114 &1026775385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026775380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1f6f49758f4ccb4cbc41992ad6971d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineWidth: 0.0035
+  outlineColor: {r: 0, g: 1, b: 1, a: 1}
+  selectionUnlit: {fileID: 2100000, guid: 42e96cdea13c95e44821210db4a82cdb, type: 2}
+  composite: {fileID: 2100000, guid: 433784408fbddb847ab2ac57fe108bdc, type: 2}
+  jumpFlood:
+    <Steps>k__BackingField: 4
 --- !u!1 &1145070475 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c76479591c1c548990556083881d72,

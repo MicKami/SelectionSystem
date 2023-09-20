@@ -1,12 +1,8 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting.Dependencies.Sqlite;
 using UnityEditor;
-using UnityEditor.PackageManager.UI;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UI;
 
 public class SelectableIDMap : MonoBehaviour
 {
@@ -145,18 +141,18 @@ public class SelectableIDMap : MonoBehaviour
         sampleAtRegionCallback(ids);
     }
 
-    private void OnDrawGizmos()
-    {
-        if (!EditorApplication.isPlaying) return;
-        Gizmos.color = Color.magenta;
-        foreach (var hover in Selection.Hover)
-        {
-            Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
-        }
-        Gizmos.color = Color.white;
-        foreach (var selection in Selection.Active)
-        {
-            Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
-        }
-    }
+    //private void OnDrawGizmos()
+    //{
+    //    if (!EditorApplication.isPlaying) return;
+    //    Gizmos.color = Color.magenta;
+    //    foreach (var hover in Selection.Hover)
+    //    {
+    //        Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
+    //    }
+    //    Gizmos.color = Color.white;
+    //    foreach (var selection in Selection.Active)
+    //    {
+    //        Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
+    //    }
+    //}
 }

@@ -10,14 +10,6 @@ public class JumpFlood
 
     [field: SerializeField, Range(0, 32)]
     public int Steps { get; set; }
-    //private int _steps;
-    //[field:Range(0, 32)]
-    //public int Steps
-    //{
-    //    get { return _steps; }
-    //    set { _steps = Mathf.Clamp(value, 0, 32); }
-    //}
-
 
     private Material material;
 
