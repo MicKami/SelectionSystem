@@ -1,4 +1,4 @@
-Shader "Custom/SelectionID"
+Shader "Custom/SelectableID"
 {
     SubShader
     {

@@ -14,13 +14,13 @@ void Main(uint2 id : SV_DispatchThreadID)
 	if (id.x < (uint)Rect.z && id.y < (uint)Rect.w)
 	{
 		float4 color = LinearToSRGB(Input[id.xy + Rect.xy]);
-		uint packedR = uint(color.r * 255);
-		uint packedG = uint(color.g * 255) << 8; // shift bits over 8 places
-		uint packedB = uint(color.b * 255) << 16; // shift bits over 16 places
-		uint packedA = uint(color.a * 255) << 24; // shift bits over 24 places
-		uint packedColor = packedR + packedG + packedB + packedA;
-		Output[packedColor] = 1;
-	}
+		uint R = uint(color.r * 255);
+		uint G = uint(color.g * 255) << 8; // shift bits over 8 places
+		uint B = uint(color.b * 255) << 16; // shift bits over 16 places
+		uint A = uint(color.a * 255) << 24; // shift bits over 24 places
+		uint colorToID = R + G + B + A;
+        Output[colorToID] = 1;
+    }
 }
 
 [numthreads(64, 1, 1)]

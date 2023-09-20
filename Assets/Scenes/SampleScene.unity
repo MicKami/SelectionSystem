@@ -1014,7 +1014,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1026775382}
-  - component: {fileID: 1026775381}
+  - component: {fileID: 1026775384}
+  - component: {fileID: 1026775383}
   m_Layer: 0
   m_Name: SelectableManager
   m_TagString: Untagged
@@ -1022,25 +1023,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1026775381
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1026775380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a1f6f49758f4ccb4cbc41992ad6971d4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selectableID: {fileID: 2100000, guid: 2a3645062a5f55b48ac0891b06d76779, type: 2}
-  selectionUnlit: {fileID: 2100000, guid: 42e96cdea13c95e44821210db4a82cdb, type: 2}
-  composite: {fileID: 2100000, guid: 433784408fbddb847ab2ac57fe108bdc, type: 2}
-  jumpFlood:
-    <Steps>k__BackingField: 32
-  downscaleFactor: 0
-  computeShader: {fileID: 7200000, guid: b915b79434fed884c8940dab95344ed6, type: 3}
 --- !u!4 &1026775382
 Transform:
   m_ObjectHideFlags: 0
@@ -1056,6 +1038,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1026775383
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026775380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe80cd7d0c6e0d8448bbf60d702b470f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  <IDMap>k__BackingField: {fileID: 1026775384}
+--- !u!114 &1026775384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1026775380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 33cd84b16b62f0b47881538bbd1308e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  downscaleFactor: 0
 --- !u!1 &1145070475 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: d7c76479591c1c548990556083881d72,

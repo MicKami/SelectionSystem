@@ -77,36 +77,6 @@ public class SelectionManager : MonoBehaviour
         context.ExecuteCommandBuffer(cmd);
         context.Submit();
 
-        //if (read)
-        //{
-        //    read = false;
-        //    UniqueIDsFromRT(selectableRT, selectionRect, request =>
-        //    {
-        //        var resultIDs = request.GetData<uint>();
-        //        List<uint> result = new();
-        //        for (uint i = 0; i < resultIDs.Length; i++)
-        //        {
-        //            if (resultIDs[(int)i] > 0) result.Add(i);
-        //        }
-        //        if (mouseUp)
-        //        {
-        //            selectionData.CurrentSelection.Clear();
-        //            selectionData.CurrentSelection.AddRange(selectionData.HoverSelection);
-        //            //hoverSelection.Clear();
-        //        }
-        //        else
-        //        {
-        //            selectionData.HoverSelection.Clear();
-        //            foreach (var id in result)
-        //            {
-        //                if (id == 0) continue;
-        //                selectionData.HoverSelection.Add(selectablesLookup[id]);
-        //            }
-        //        }
-        //    });
-        //}
-
-
         //if (selectionData.CurrentSelection.Count > 0)
         //{
         //    cmd.Clear();
@@ -179,7 +149,7 @@ public class SelectionManager : MonoBehaviour
                 SampleRenderTextureAtPosition(MousePosition(), selectableRT, request =>
                 {
                     var data = request.GetData<Color32>();
-                    uint id = SelectableBase.ColorToID(data[0]);
+                    uint id = SelectionUtility.ColorToID(data[0]);
                     Selection.SetHover(id);
                     if (Input.GetMouseButtonDown(0))
                     {
@@ -266,8 +236,8 @@ public class SelectionManager : MonoBehaviour
 
     private bool IsPositionWithinScreen(Vector2 position)
     {
-        return position.x >= 0 && ((int)position.x >> downscaleFactor) < (Screen.width >> downscaleFactor) &&
-               position.y >= 0 && ((int)position.y >> downscaleFactor) < (Screen.height >> downscaleFactor);
+        return position.x >= 0 && ((int)position.x) < (Screen.width) &&
+               position.y >= 0 && ((int)position.y) < (Screen.height);
     }
     private Vector2 MousePosition()
     {
@@ -294,21 +264,15 @@ public class SelectionManager : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (!EditorApplication.isPlaying) return;
-        if (Selection.Hover.Count > 0)
+        Gizmos.color = Color.magenta;
+        foreach (var hover in Selection.Hover)
         {
-            Gizmos.color = Color.magenta;
-            foreach (var hover in Selection.Hover)
-            {
-                Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
-            }
+            Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
         }
-        if (Selection.Active.Count > 0)
+        Gizmos.color = Color.white;
+        foreach (var selection in Selection.Active)
         {
-            Gizmos.color = Color.white;
-            foreach (var selection in Selection.Active)
-            {
-                Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
-            }
+            Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
         }
     }
 }
