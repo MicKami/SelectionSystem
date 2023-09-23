@@ -1,80 +1,95 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Selector : MonoBehaviour
 {
-    private bool isDragging;
     private Vector2 dragBeginPosition;
-    private Rect selectionRect;
-
     [field: SerializeField]
     public SelectableIDMap IDMap { get; set; }
 
+    private bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
+    private bool ShiftModifierPressed => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+    private bool ControlModifierPressed => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+    public Rect SelectionRect
+    {
+        get
+        {
+            if (Input.GetMouseButton(0))
+            {
+                Vector2 min = Vector2.Min(dragBeginPosition, MousePosition());
+                Vector2 max = Vector2.Max(dragBeginPosition, MousePosition());
+                min = Vector2.Max(min, Vector2.zero);
+                max = Vector2.Min(max, new Vector2(Screen.width, Screen.height));
+                Vector2 size = max - min;
+                return new Rect(new Vector2(min.x, min.y), size);
+            }
+            else return new Rect(MousePosition(), Vector2.zero);
+        }
+    }
+
+    private Texture2D _rectTexture;
+    private Texture2D rectTexture
+    {
+        get
+        {
+            if (_rectTexture == null)
+            {
+                _rectTexture = new Texture2D(1, 1);
+                _rectTexture.SetPixel(0, 0, new Color(0, 0, 0, 0.15f));
+                _rectTexture.Apply();
+            }
+            return _rectTexture;
+        }
+    }
+
+
     private void Update()
     {
-        if (!isDragging)
-        {
-            var mousePosition = MousePosition();
-            if (IsPositionWithinScreen(mousePosition))
-            {
-                IDMap.SampleAtPosition(MousePosition(), id =>
-                {
-                    Selection.SetHover(id);
-                    if (Input.GetMouseButtonDown(0))
-                    {
-                        Selection.Set(id);
-                    }
-                });
-            }
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             dragBeginPosition = MousePosition();
         }
-        if (Input.GetMouseButton(0))
+
+        if (IsMouseWithinScreen())
         {
-            Vector2 min = Vector2.Min(dragBeginPosition, MousePosition());
-            Vector2 max = Vector2.Max(dragBeginPosition, MousePosition());
-            min = Vector2.Max(min, Vector2.zero);
-            max = Vector2.Min(max, new Vector2(Screen.width, Screen.height));
-            Vector2 size = max - min;
-            selectionRect = new Rect(new Vector2(min.x, min.y), size);
-            isDragging = true;
+            IDMap.Sample(SelectionRect, HandleSelection); 
         }
-        if (isDragging && selectionRect.size.x > 1 && selectionRect.size.y > 1)
-        {
-            IDMap.SampleAtRegion(selectionRect, ids =>
-            {
-                Selection.SetHover(ids);
-                if (Input.GetMouseButtonUp(0))
-                {
-                    Selection.ClearHover();
-                    Selection.Add(ids);
-                }
-            });
-        }
+    }
+
+    private void HandleSelection(IEnumerable<uint> ids)
+    {
+        Selection.SetHover(ids);
         if (Input.GetMouseButtonUp(0))
         {
-            isDragging = false;
-            selectionRect.size = Vector2.zero;
+            if (ShiftModifierPressed)
+            {
+                Selection.Add(ids);
+            }
+            else if (ControlModifierPressed)
+            {
+                Selection.Remove(ids);
+            }
+            else Selection.Set(ids);
         }
+    }
+    private void HandleSelection(uint id)
+    {
+        HandleSelection(new uint[] { id });
     }
 
     private void OnGUI()
     {
-        if (isDragging)
+        if (IsDragging)
         {
-            Texture2D texture = new Texture2D(1, 1);
-            texture.SetPixel(0, 0, new Color(0, 0, 0, 0.15f));
-            texture.Apply();
-            GUI.DrawTexture(selectionRect, texture);
+            GUI.DrawTexture(SelectionRect, rectTexture);
         }
     }
 
 
 
-    private bool IsPositionWithinScreen(Vector2 position)
+    private bool IsMouseWithinScreen()
     {
+        Vector2 position = MousePosition();
         return position.x >= 0 && ((int)position.x) < (Screen.width) &&
                position.y >= 0 && ((int)position.y) < (Screen.height);
     }

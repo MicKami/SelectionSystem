@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UnityEngine.UIElements;
 
 public class SelectableIDMap : MonoBehaviour
 {
@@ -13,8 +14,7 @@ public class SelectableIDMap : MonoBehaviour
     private Material selectableID;
     private MaterialPropertyBlock materialPropertyBlock;
 
-    private Action<uint> sampleAtPositionCallback;
-    private Action<List<uint>> sampleAtRegionCallback;
+    private Action<IEnumerable<uint>> sampleRegionCallback;
 
     private ComputeShader computeShader;
     private int initializedKernelID;
@@ -89,12 +89,21 @@ public class SelectableIDMap : MonoBehaviour
         RenderTexture.ReleaseTemporary(temp);
     }
 
-    public void SampleAtPosition(Vector2 position, Action<uint> callback)
+    public (int x, int y) DownScale(Vector2 value)
+    {
+        for (int i = 0; i < downscaleFactor; i++)
+        {
+            value /= 2;
+        }
+        return (Mathf.CeilToInt(value.x), Mathf.CeilToInt(value.y));
+    }
+
+    public void SampleAtPosition(Vector2 position, Action<IEnumerable<uint>> callback)
     {
         if (IDMap)
         {
-            sampleAtPositionCallback = callback;
-            (int x, int y) = ((int)position.x >> downscaleFactor, (int)position.y >> downscaleFactor);
+            sampleRegionCallback = callback;
+            (int x, int y) = DownScale(position);
             AsyncGPUReadback.Request(IDMap, 0, x, 1, y, 1, 0, 1, SamplePoint);
         }
     }
@@ -103,14 +112,27 @@ public class SelectableIDMap : MonoBehaviour
     {
         var data = request.GetData<Color32>();
         uint id = SelectionUtility.ColorToID(data[0]);
-        sampleAtPositionCallback(id);
+        sampleRegionCallback(new uint[] { id });
     }
 
-    public void SampleAtRegion(Rect region, Action<List<uint>> callback)
+    public void Sample(Rect region, Action<IEnumerable<uint>> callback)
+    {
+        print(region);
+        if (region.width >= 1 && region.height >= 1)
+        {
+            SampleAtRegion(region, callback);
+        }
+        else SampleAtPosition(region.position, callback);
+    }
+
+    public void SampleAtRegion(Rect region, Action<IEnumerable<uint>> callback)
     {
         if (IDMap)
         {
-            sampleAtRegionCallback = callback;
+            (int x, int y) = DownScale(region.position);
+            (int width, int height) = DownScale(region.size);
+            region = new Rect(x, y, width, height);
+            sampleRegionCallback = callback;
             outputBuffer = new ComputeBuffer((int)SelectableBase.IDsCount + 1, sizeof(uint));
 
             computeShader.SetBuffer(initializedKernelID, "Output", outputBuffer);
@@ -122,7 +144,7 @@ public class SelectableIDMap : MonoBehaviour
             var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(region.width / 8f), Mathf.CeilToInt(region.height / 8f));
             computeShader.Dispatch(mainKernelID, threadGroupsX, threadGroupsY, 1);
             AsyncGPUReadback.Request(outputBuffer, SampleRegion);
-            outputBuffer.Dispose(); 
+            outputBuffer.Dispose();
         }
     }
 
@@ -138,21 +160,16 @@ public class SelectableIDMap : MonoBehaviour
                 ids.Add(i);
             }
         }
-        sampleAtRegionCallback(ids);
+        sampleRegionCallback(ids);
     }
 
-    //private void OnDrawGizmos()
-    //{
-    //    if (!EditorApplication.isPlaying) return;
-    //    Gizmos.color = Color.magenta;
-    //    foreach (var hover in Selection.Hover)
-    //    {
-    //        Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
-    //    }
-    //    Gizmos.color = Color.white;
-    //    foreach (var selection in Selection.Active)
-    //    {
-    //        Gizmos.DrawWireCube(selection.transform.position, selection.Renderer.bounds.size);
-    //    }
-    //}
+    private void OnDrawGizmos()
+    {
+        if (!EditorApplication.isPlaying) return;
+        Gizmos.color = Color.magenta;
+        foreach (var hover in Selection.Hover)
+        {
+            Gizmos.DrawWireCube(hover.transform.position, hover.Renderer.bounds.size);
+        }
+    }
 }

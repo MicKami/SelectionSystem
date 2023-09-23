@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Unity.VisualScripting;
+using Unity.VisualScripting.FullSerializer;
 using UnityEditor;
 using UnityEngine;
+using static UnityEditor.Rendering.InspectorCurveEditor;
 
 
 public static class Selection
@@ -13,30 +16,29 @@ public static class Selection
     {
         get { return _selectables ??= new(); }
     }
-    private static ReadOnlyCollection<SelectableBase> _selectablesReadOnly;
-    public static ReadOnlyCollection<SelectableBase> Selectables
+    public static IEnumerable<SelectableBase> Selectables
     {
-        get { return _selectablesReadOnly ??= new(selectables.Values.ToList()); }
+        get { return selectables.Values; }
     }
-    private static List<SelectableBase> _active;
-    private static List<SelectableBase> active
+
+    private static HashSet<SelectableBase> _active;
+    private static HashSet<SelectableBase> active
     {
         get { return _active ??= new(); }
     }
-    private static ReadOnlyCollection<SelectableBase> _activeReadOnly;
-    public static ReadOnlyCollection<SelectableBase> Active
+    public static IEnumerable<SelectableBase> Active
     {
-        get { return _activeReadOnly ??= new(active); }
+        get { return active; }
     }
-    private static List<SelectableBase> _hover;
-    private static List<SelectableBase> hover
+
+    private static HashSet<SelectableBase> _hover;
+    private static HashSet<SelectableBase> hover
     {
         get { return _hover ??= new(); }
     }
-    private static ReadOnlyCollection<SelectableBase> _hoverReadOnly;
-    public static ReadOnlyCollection<SelectableBase> Hover
+    public static IEnumerable<SelectableBase> Hover
     {
-        get { return _hoverReadOnly ??= new(hover); }
+        get { return hover; }
     }
 
     public static bool Register(SelectableBase selectable)
@@ -47,6 +49,7 @@ public static class Selection
     {
         return selectables.Remove(selectable.ID);
     }
+
     public static void ClearActive()
     {
         foreach (SelectableBase selectable in active)
@@ -55,23 +58,69 @@ public static class Selection
         }
         active.Clear();
     }
+    private static bool RemoveExcept(uint IDToKeep)
+    {
+        bool contains = false;
+        foreach (SelectableBase selectable in active)
+        {
+            if (selectable.ID == IDToKeep)
+            {
+                contains = true;
+            }
+            else selectable.Deselect();
+        }
+        active.Clear();
+        if (contains)
+        {
+            active.Add(selectables[IDToKeep]);
+        }
+        return contains;
+    }
     public static void Set(uint id)
     {
-        ClearActive();
-        Add(id);
+        if (selectables.ContainsKey(id))
+        {
+            if (!RemoveExcept(id))
+            {
+                Add(id);
+            }
+        }
+        else ClearActive();
     }
     public static void Set(IEnumerable<uint> ids)
     {
         ClearActive();
         Add(ids);
     }
+    public static bool Remove(uint id)
+    {
+        if (selectables.ContainsKey(id))
+        {
+            var selection = selectables[id];
+            if (active.Remove(selection))
+            {
+                selection.Deselect();
+                return true;
+            }
+        }
+        return false;
+    }
+    public static void Remove(IEnumerable<uint> ids)
+    {
+        foreach (var id in ids)
+        {
+            Remove(id);
+        }
+    }
     public static void Add(uint id)
     {
         if (selectables.ContainsKey(id))
         {
             var selection = selectables[id];
-            selection.Select();
-            active.Add(selection);
+            if (active.Add(selection))
+            {
+                selection.Select();
+            }
         }
     }
     public static void Add(IEnumerable<uint> ids)
@@ -81,6 +130,7 @@ public static class Selection
             Add(id);
         }
     }
+
     public static void ClearHover()
     {
         hover.Clear();
@@ -119,6 +169,6 @@ public static class Selection
             ClearActive();
             ClearHover();
         }
-    } 
+    }
 #endif
 }
