@@ -7,7 +7,7 @@ public class Selector : MonoBehaviour
     [field: SerializeField]
     public SelectableIDMap IDMap { get; set; }
 
-    private bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
+    public bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
     private bool ShiftModifierPressed => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
     private bool ControlModifierPressed => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
     public Rect SelectionRect
@@ -27,22 +27,6 @@ public class Selector : MonoBehaviour
         }
     }
 
-    private Texture2D _rectTexture;
-    private Texture2D rectTexture
-    {
-        get
-        {
-            if (_rectTexture == null)
-            {
-                _rectTexture = new Texture2D(1, 1);
-                _rectTexture.SetPixel(0, 0, new Color(0, 0, 0, 0.15f));
-                _rectTexture.Apply();
-            }
-            return _rectTexture;
-        }
-    }
-
-
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
@@ -55,7 +39,6 @@ public class Selector : MonoBehaviour
             IDMap.Sample(SelectionRect, HandleSelection); 
         }
     }
-
     private void HandleSelection(IEnumerable<uint> ids)
     {
         Selection.SetHover(ids);
@@ -72,28 +55,12 @@ public class Selector : MonoBehaviour
             else Selection.Set(ids);
         }
     }
-    private void HandleSelection(uint id)
-    {
-        HandleSelection(new uint[] { id });
-    }
-
-    private void OnGUI()
-    {
-        if (IsDragging)
-        {
-            GUI.DrawTexture(SelectionRect, rectTexture);
-        }
-    }
-
-
-
     private bool IsMouseWithinScreen()
     {
         Vector2 position = MousePosition();
         return position.x >= 0 && ((int)position.x) < (Screen.width) &&
                position.y >= 0 && ((int)position.y) < (Screen.height);
     }
-
     private Vector2 MousePosition()
     {
         return new Vector2(Input.mousePosition.x, Screen.height - Input.mousePosition.y);
