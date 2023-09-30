@@ -34,16 +34,18 @@ Shader "Hidden/DistanceCompositeEffect" {
 			sampler2D _MainTex;
 			sampler2D _TargetTexture;
 			float _OutlineWidth;
-			fixed4 _OutlineColor;
+			float4 _OutlineColor;
 
-			fixed4 frag(v2f i) : SV_Target {
+			float4 frag(v2f i) : SV_Target {
 			  float4 distanceTransform = tex2D(_MainTex, i.uv);
 			  float mask = tex2D(_TargetTexture, i.uv);
 
-			  float distance = sqrt(distanceTransform.z) - _OutlineWidth + 0.001;
-			  float alpha = saturate(1 - saturate(distance / fwidth(distance)) - mask);
+			  float distance = sqrt(distanceTransform.z) - _OutlineWidth;
+			  float distance2 = sqrt(distanceTransform.z) - 0.002;
+			  float alpha = saturate(1 - saturate(distance / fwidth(distance)));
+			  float mask2 = saturate(1 - saturate(distance2 / fwidth(distance2)));
 
-			  return _OutlineColor * alpha;
+			  return _OutlineColor * (alpha - (mask - mask2 * mask));
 			}
 			ENDCG
 		  }
