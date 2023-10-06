@@ -10,9 +10,12 @@ public abstract class SelectableBase : MonoBehaviour
     {
         IDsCount = 0;
     }
+    [field:Layer, SerializeField]
+    public int SelectablesLayer { get; private set; }
     public uint ID { get; private set; }
     public Color32 Color32 { get; private set; }
     public Renderer Renderer{ get; private set; }
+
 
     protected virtual void Awake()
     {
@@ -21,12 +24,14 @@ public abstract class SelectableBase : MonoBehaviour
         Renderer = GetComponentInChildren<Renderer>(true);
         if (Renderer == null) Renderer = GetComponentInParent<Renderer>(true);
         if (Renderer == null) Debug.LogWarning("No Renderer component found!");
+
+        gameObject.layer = SelectablesLayer;
+        Renderer.material.SetColor("_UnlitColor", Color32);
     }
 
     public abstract void Select();
-    public abstract void Deselect();
-
-    private uint GetNextUniqueID()
+    public abstract void Deselect();    
+	private uint GetNextUniqueID()
     {
         return ++IDsCount;
     }

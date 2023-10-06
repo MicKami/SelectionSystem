@@ -36,7 +36,9 @@ public class SelectionRectDrawer : MonoBehaviour
     {
         if (Event.current.type == EventType.Repaint)
         {
-            Graphics.DrawTexture(selector.SelectionRect, rectTexture, selectionRectMaterial, 0);
+            var rect = selector.SelectionRect;
+            rect.y = Screen.height - rect.y - rect.height;
+            Graphics.DrawTexture(rect, rectTexture, selectionRectMaterial, 0);
         }
     }
     private void OnValidate()

@@ -10,19 +10,58 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cf9330861e296d04ea6a1137caa53186, type: 3}
-  m_Name: RenderOutlinesFeature
+  m_Name: RenderOutlines
   m_EditorClassIdentifier: 
   m_Active: 1
   settings:
     layerMask:
       serializedVersion: 2
-      m_Bits: 64
+      m_Bits: 128
     overrideMaterial: {fileID: 0}
     steps: 2
-    diagonal: 1
+    diagonal: 0
     color: {r: 1, g: 0.33333334, b: 0, a: 1}
     dilateMaterial: {fileID: 0}
     blitMaterial: {fileID: 0}
+--- !u!114 &-8024946333184870151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf9330861e296d04ea6a1137caa53186, type: 3}
+  m_Name: RenderOutlines
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  settings:
+    layerMask:
+      serializedVersion: 2
+      m_Bits: 256
+    overrideMaterial: {fileID: 0}
+    steps: 2
+    diagonal: 0
+    color: {r: 0.9502263, g: 0, b: 1, a: 1}
+    dilateMaterial: {fileID: 0}
+    blitMaterial: {fileID: 0}
+--- !u!114 &-6017222749625702599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5ed9e193272209b4da12907092dc9683, type: 3}
+  m_Name: RenderSelectablesID
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  layer:
+    serializedVersion: 2
+    m_Bits: 448
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55,8 +94,10 @@ MonoBehaviour:
     probeSamplingDebugTexture: {fileID: 2800000, guid: 24ec0e140fb444a44ab96ee80844e18e,
       type: 3}
   m_RendererFeatures:
+  - {fileID: -6017222749625702599}
   - {fileID: -8666819192180049364}
-  m_RendererFeatureMap: 2cfa910ddd45b987
+  - {fileID: -8024946333184870151}
+  m_RendererFeatureMap: 39272932ca877eac2cfa910ddd45b987f938f1f4d3a9a190
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}

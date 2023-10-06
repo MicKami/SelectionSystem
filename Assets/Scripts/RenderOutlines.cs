@@ -3,14 +3,13 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class RenderOutlinesFeature : ScriptableRendererFeature
+public class RenderOutlines : ScriptableRendererFeature
 {
-    public class CustomRenderPass : ScriptableRenderPass
+    class CustomRenderPass : ScriptableRenderPass
     {
         private Settings settings;
         private FilteringSettings filteringSettings;
-        private ProfilingSampler _profilingSampler;
-        private List<ShaderTagId> shaderTagsList = new List<ShaderTagId>();
+        private List<ShaderTagId> shaderTagsList = new ();
         private RTHandle outlinesMaskRT;
         private RTHandle outlinesDilatedRT;
         private RTHandle tempRT;
@@ -24,7 +23,7 @@ public class RenderOutlinesFeature : ScriptableRendererFeature
             shaderTagsList.Add(new ShaderTagId("UniversalForward"));
             shaderTagsList.Add(new ShaderTagId("UniversalForwardOnly"));
 
-            _profilingSampler = new ProfilingSampler(name);
+            profilingSampler = new ProfilingSampler(name);
         }
 
         public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
@@ -39,13 +38,13 @@ public class RenderOutlinesFeature : ScriptableRendererFeature
             RenderingUtils.ReAllocateIfNeeded(ref tempRT, colorDesc);
 
             ConfigureTarget(outlinesMaskRT);
-            ConfigureClear(ClearFlag.Color, new Color(0, 0, 0, 0));
+            ConfigureClear(ClearFlag.Color, Color.clear);
         }
 
         public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
         {
             CommandBuffer cmd = CommandBufferPool.Get();
-            using (new ProfilingScope(cmd, _profilingSampler))
+            using (new ProfilingScope(cmd, profilingSampler))
             {
                 context.ExecuteCommandBuffer(cmd);
                 cmd.Clear();
@@ -83,9 +82,7 @@ public class RenderOutlinesFeature : ScriptableRendererFeature
             CommandBufferPool.Release(cmd);
         }
 
-        public override void OnCameraCleanup(CommandBuffer cmd) { }
-
-        public void Dispose()
+        public override void OnCameraCleanup(CommandBuffer cmd) 
         {
             outlinesMaskRT?.Release();
             outlinesDilatedRT?.Release();
@@ -129,7 +126,6 @@ public class RenderOutlinesFeature : ScriptableRendererFeature
 
     protected override void Dispose(bool disposing)
     {
-        m_ScriptablePass.Dispose();
         CoreUtils.Destroy(settings.overrideMaterial);
         CoreUtils.Destroy(settings.dilateMaterial);
         CoreUtils.Destroy(settings.blitMaterial);

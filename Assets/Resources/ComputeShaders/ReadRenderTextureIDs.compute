@@ -4,7 +4,7 @@
 
 float4 LinearToSRGB(float4 linearColor);
 
-Texture2D<float4> Input;
+Texture2D<float4> _SelectablesID;
 RWStructuredBuffer<uint> Output;
 float4 Rect;
 
@@ -13,7 +13,7 @@ void Main(uint2 id : SV_DispatchThreadID)
 {
 	if (id.x < (uint)Rect.z && id.y < (uint)Rect.w)
 	{
-		float4 color = LinearToSRGB(Input[id.xy + Rect.xy]);
+		float4 color = LinearToSRGB(_SelectablesID[id.xy + Rect.xy]);
 		uint R = uint(color.r * 255);
 		uint G = uint(color.g * 255) << 8; // shift bits over 8 places
 		uint B = uint(color.b * 255) << 16; // shift bits over 16 places
