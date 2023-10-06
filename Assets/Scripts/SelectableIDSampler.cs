@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
 
 public class SelectableIDSampler : MonoBehaviour
 {
@@ -67,13 +65,13 @@ public class SelectableIDSampler : MonoBehaviour
             (int width, int height) = DownScale(region.size);
             region = new Rect(x, y, width, height);
             sampleRegionCallback = callback;
-            outputBuffer = new ComputeBuffer((int)SelectableBase.IDsCount + 1, sizeof(uint));
+            outputBuffer = new ComputeBuffer(Selection.Selectables.Count + 1, sizeof(uint));
 
             computeShader.SetBuffer(initializedKernelID, "Output", outputBuffer);
             computeShader.SetBuffer(mainKernelID, "Output", outputBuffer);
             computeShader.SetTextureFromGlobal(mainKernelID, "_SelectablesID", "_SelectablesID");
             computeShader.SetVector("Rect", new Vector4(region.x, region.y, region.width, region.height));
-            computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt((int)SelectableBase.IDsCount / 64f), 1, 1);
+            computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt(Selection.Selectables.Count + 1 / 64f), 1, 1);
 
             var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(region.width / 8f), Mathf.CeilToInt(region.height / 8f));
             computeShader.Dispatch(mainKernelID, threadGroupsX, threadGroupsY, 1);

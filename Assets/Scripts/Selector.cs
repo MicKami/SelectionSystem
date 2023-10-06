@@ -7,11 +7,11 @@ public class Selector : MonoBehaviour
 	private bool mouseUp;
 
 	[field: SerializeField]
-	public SelectableIDSampler IDMap { get; set; }
+	public SelectableIDSampler IDSampler { get; set; }
 
 	public bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
-	private bool ShiftModifierPressed => Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-	private bool ControlModifierPressed => Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+	private bool ShiftModifierPressed => Input.GetKey(KeyCode.LeftShift);
+	private bool ControlModifierPressed => Input.GetKey(KeyCode.LeftControl);
 	public Rect SelectionRect
 	{
 		get
@@ -36,7 +36,7 @@ public class Selector : MonoBehaviour
 		}
 		if (IsMouseWithinScreen() || IsDragging)
 		{
-			IDMap.Sample(SelectionRect, HandleSelection);
+			IDSampler.Sample(SelectionRect, HandleSelection);
 		}
 		mouseUp = Input.GetMouseButtonUp(0);
 	}

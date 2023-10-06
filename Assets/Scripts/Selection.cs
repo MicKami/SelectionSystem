@@ -4,15 +4,21 @@ using UnityEditor;
 
 public static class Selection
 {
+	public static event Action<Selectable> OnSelect;
+	public static event Action<Selectable> OnDeselect;
 
-	private static Dictionary<uint, SelectableBase> _selectables;
-	private static Dictionary<uint, SelectableBase> selectables
+	public static event Action<Selectable> OnHoverEnter;
+	public static event Action<Selectable> OnHoverExit;
+
+
+	private static Dictionary<uint, Selectable> _selectables;
+	private static Dictionary<uint, Selectable> selectables
 	{
 		get { return _selectables ??= new(); }
 	}
-	public static IEnumerable<SelectableBase> Selectables
+	public static IReadOnlyList<Selectable> Selectables
 	{
-		get { return selectables.Values; }
+		get { return new List<Selectable>(selectables.Values); }
 	}
 
 	private static HashSet<uint> _active;
@@ -20,9 +26,9 @@ public static class Selection
 	{
 		get { return _active ??= new(); }
 	}
-	public static IEnumerable<uint> Active
+	public static IReadOnlyList<uint> Active
 	{
-		get { return active; }
+		get { return new List<uint>(active); }
 	}
 
 	private static HashSet<uint> _hover;
@@ -30,27 +36,18 @@ public static class Selection
 	{
 		get { return _hover ??= new(); }
 	}
-	public static IEnumerable<uint> Hover
+	public static IReadOnlyList<uint> Hover
 	{
-		get { return hover; }
+		get { return new List<uint>(hover); }
 	}
 
-	public static bool Register(SelectableBase selectable)
+	public static bool Register(Selectable selectable)
 	{
 		return selectables.TryAdd(selectable.ID, selectable);
 	}
-	public static bool Unregister(SelectableBase selectable)
+	public static bool Unregister(Selectable selectable)
 	{
 		return selectables.Remove(selectable.ID);
-	}
-
-	public static void ClearActive()
-	{
-		foreach (uint id in active)
-		{
-			selectables[id].Deselect();
-		}
-		active.Clear();
 	}
 	public static void Set(HashSet<uint> ids)
 	{
@@ -60,30 +57,17 @@ public static class Selection
 		Remove(old);
 		Add(ids);
 	}
-	private static void Remove(uint id)
-	{
-		if (selectables.ContainsKey(id))
-		{
-			if (active.Remove(id))
-			{
-				selectables[id].Deselect();
-			}
-		}
-	}
 	public static void Remove(HashSet<uint> ids)
 	{
 		foreach (var id in ids)
 		{
-			Remove(id);
-		}
-	}
-	private static void Add(uint id)
-	{
-		if (selectables.ContainsKey(id))
-		{
-			if (active.Add(id))
+			if (selectables.ContainsKey(id))
 			{
-				selectables[id].Select();
+				if (active.Remove(id))
+				{
+					selectables[id].OnDeselect();
+					OnDeselect?.Invoke(selectables[id]);
+				}
 			}
 		}
 	}
@@ -91,26 +75,45 @@ public static class Selection
 	{
 		foreach (uint id in ids)
 		{
-			Add(id);
+			if (selectables.ContainsKey(id))
+			{
+				if (active.Add(id))
+				{
+					selectables[id].OnSelect();
+					OnSelect?.Invoke(selectables[id]);
+				}
+			}
 		}
-	}
-
-	public static bool ActiveContains(SelectableBase item)
-	{
-		return active.Contains(item.ID);
-	}
-
-	public static bool HoverContains(SelectableBase item)
-	{
-		return hover.Contains(item.ID);
-	}
-	public static void ClearHover()
-	{
-		hover.Clear();
 	}
 	public static void SetHover(HashSet<uint> ids)
 	{
-		_hover = ids;
+		HashSet<uint> old = new(hover);
+		HashSet<uint> copy = new(ids);
+		old.ExceptWith(copy);
+		copy.ExceptWith(hover);
+
+		foreach (var id in old)
+		{
+			if (selectables.ContainsKey(id))
+			{
+				if(hover.Remove(id))
+				{ 
+					selectables[id].OnHoverExit();
+					OnHoverExit?.Invoke(selectables[id]);
+				}
+			}
+		}
+		foreach (var id in copy)
+		{
+			if (selectables.ContainsKey(id))
+			{
+				if (hover.Add(id))
+				{
+					selectables[id].OnHoverEnter();
+					OnHoverEnter?.Invoke(selectables[id]);
+				}
+			}
+		}
 	}
 
 #if UNITY_EDITOR
@@ -124,8 +127,8 @@ public static class Selection
 	{
 		if (state == PlayModeStateChange.ExitingPlayMode)
 		{
-			ClearActive();
-			ClearHover();
+			active.Clear();
+			hover.Clear();
 		}
 	}
 
