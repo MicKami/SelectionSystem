@@ -8,10 +8,14 @@ public class Selector : MonoBehaviour
 
 	[field: SerializeField]
 	public SelectableIDSampler IDSampler { get; set; }
+	[SerializeField]
+	private KeyCode AddToSelectionKey = KeyCode.LeftShift;
+	[SerializeField]
+	private KeyCode RemoveFromSelectionKey = KeyCode.LeftControl;
 
 	public bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
-	private bool ShiftModifierPressed => Input.GetKey(KeyCode.LeftShift);
-	private bool ControlModifierPressed => Input.GetKey(KeyCode.LeftControl);
+	private bool AddModifierPressed => Input.GetKey(AddToSelectionKey);
+	private bool RemoveModifierPressed => Input.GetKey(RemoveFromSelectionKey);
 	public Rect SelectionRect
 	{
 		get
@@ -45,11 +49,11 @@ public class Selector : MonoBehaviour
 		Selection.SetHover(ids);
 		if (mouseUp)
 		{
-			if (ShiftModifierPressed)
+			if (AddModifierPressed)
 			{
 				Selection.Add(ids);
 			}
-			else if (ControlModifierPressed)
+			else if (RemoveModifierPressed)
 			{
 				Selection.Remove(ids);
 			}

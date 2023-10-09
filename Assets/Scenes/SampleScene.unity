@@ -1125,6 +1125,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <IDSampler>k__BackingField: {fileID: 1026775384}
+  AddToSelectionKey: 304
+  RemoveFromSelectionKey: 306
 --- !u!114 &1026775384
 MonoBehaviour:
   m_ObjectHideFlags: 0
