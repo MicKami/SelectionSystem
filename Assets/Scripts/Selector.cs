@@ -3,11 +3,7 @@ using UnityEngine;
 
 public class Selector : MonoBehaviour
 {
-	private Vector2 dragBeginPosition;
-	private bool mouseUp;
 
-	[field: SerializeField]
-	public SelectableIDSampler IDSampler { get; set; }
 	[SerializeField]
 	private KeyCode AddToSelectionKey = KeyCode.LeftShift;
 	[SerializeField]
@@ -32,6 +28,9 @@ public class Selector : MonoBehaviour
 		}
 	}
 
+	private Vector2 dragBeginPosition;
+	private bool mouseUp;
+
 	private void Update()
 	{
 		if (Input.GetMouseButtonDown(0))
@@ -40,7 +39,7 @@ public class Selector : MonoBehaviour
 		}
 		if (IsMouseWithinScreen() || IsDragging)
 		{
-			IDSampler.Sample(SelectionRect, HandleSelection);
+			SelectablesSampler.Sample(SelectionRect, HandleSelection);
 		}
 		mouseUp = Input.GetMouseButtonUp(0);
 	}

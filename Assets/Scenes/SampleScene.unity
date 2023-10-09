@@ -1086,7 +1086,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1026775382}
-  - component: {fileID: 1026775384}
   - component: {fileID: 1026775383}
   - component: {fileID: 1026775387}
   - component: {fileID: 1026775386}
@@ -1124,21 +1123,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe80cd7d0c6e0d8448bbf60d702b470f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <IDSampler>k__BackingField: {fileID: 1026775384}
   AddToSelectionKey: 304
   RemoveFromSelectionKey: 306
---- !u!114 &1026775384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1026775380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 33cd84b16b62f0b47881538bbd1308e1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &1026775386
 MonoBehaviour:
   m_ObjectHideFlags: 0

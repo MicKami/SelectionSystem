@@ -3,32 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class SelectableIDSampler : MonoBehaviour
+public static class SelectablesSampler
 {
 	public static RenderTexture IDMap;
-	private int downscaleFactor = 0;
-	private ComputeShader computeShader;
-	private ComputeBuffer outputBuffer;
-	private int initializedKernelID;
-	private int mainKernelID;
+	public static int DownscaleFactor { get; set; }
 
-	private void Awake()
+	private static ComputeBuffer outputBuffer;
+	private static ComputeShader computeShader;
+	private static int initializedKernelID;
+	private static int mainKernelID;
+
+	[RuntimeInitializeOnLoadMethod]
+	private static void Initialize()
 	{
 		computeShader = Resources.Load<ComputeShader>("ComputeShaders/ReadRenderTextureIDs");
 		initializedKernelID = computeShader.FindKernel("Initialize");
 		mainKernelID = computeShader.FindKernel("Main");
 	}
 
-	public (int x, int y) DownScale(Vector2 value)
+	public static (int x, int y) DownScale(Vector2 value)
 	{
-		for (int i = 0; i < downscaleFactor; i++)
+		for (int i = 0; i < DownscaleFactor; i++)
 		{
 			value /= 2;
 		}
 		return (Mathf.CeilToInt(value.x), Mathf.CeilToInt(value.y));
 	}
 
-	public async Awaitable<uint> SampleAtPosition(Vector2 position)
+	public static async Awaitable<uint> SampleAtPosition(Vector2 position)
 	{
 		(int x, int y) = DownScale(position);
 		var request = await AsyncGPUReadback.RequestAsync(IDMap, 0, x, 1, y, 1, 0, 1);
@@ -37,19 +39,19 @@ public class SelectableIDSampler : MonoBehaviour
 		return id;
 
 	}
-	public async void Sample(Rect region, Action<HashSet<uint>> callback)
+	public static async void Sample(Rect region, Action<HashSet<uint>> callback)
 	{
 		if (IDMap)
 		{
 			if (region.width >= 1 && region.height >= 1)
 			{
-				callback(await SampleAtRegion(region));				
+				callback(await SampleAtRegion(region));
 			}
 			else callback(new HashSet<uint>(new uint[] { await SampleAtPosition(region.position) }));
 		}
 	}
 
-	public async Awaitable<HashSet<uint>> SampleAtRegion(Rect region)
+	public static async Awaitable<HashSet<uint>> SampleAtRegion(Rect region)
 	{
 		(int x, int y) = DownScale(region.position);
 		(int width, int height) = DownScale(region.size);
