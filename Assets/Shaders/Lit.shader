@@ -168,7 +168,7 @@ Shader "Custom/Lit"
             #pragma instancing_options renderinglayer
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
 
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl"
             ENDHLSL
         }
@@ -218,7 +218,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
             ENDHLSL
         }
@@ -299,7 +299,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl"
             ENDHLSL
         }
@@ -342,7 +342,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
             ENDHLSL
         }
@@ -392,7 +392,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
             ENDHLSL
         }
@@ -431,7 +431,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/LitMetaPass.hlsl"
 
             ENDHLSL
@@ -468,7 +468,7 @@ Shader "Custom/Lit"
 
             // -------------------------------------
             // Includes
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Utils/Universal2D.hlsl"
             ENDHLSL
         }
@@ -489,7 +489,7 @@ Shader "Custom/Lit"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "Assets/LitInput.hlsl"
+            #include "Assets/Shaders/LitInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 
             struct Attributes
