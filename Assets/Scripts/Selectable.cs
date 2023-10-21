@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Selectable : MonoBehaviour
 {
@@ -10,16 +12,15 @@ public class Selectable : MonoBehaviour
 	[RuntimeInitializeOnLoadMethod(loadType: RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void Initialize()
 	{
-		_nextID = 0;
+		SceneManager.activeSceneChanged += (_, _) => _nextID = 0; ;
 	}
 
 	[field: Layer, SerializeField]
 	public int SelectablesLayer { get; private set; }
 	public uint ID { get; private set; }
-    public SelectionStatus Status { get; private set; }
+	public SelectionStatus Status { get; private set; }
 
-
-    private void Awake()
+	private void Awake()
 	{
 		ID = GetNextUniqueID();
 		gameObject.layer = SelectablesLayer;
@@ -33,22 +34,22 @@ public class Selectable : MonoBehaviour
 	{
 		Selection.Unregister(this);
 	}
-	public void OnSelect()
+	public void Select()
 	{
 		Status |= SelectionStatus.Selected;
 	}
 
-	public void OnDeselect()
+	public void Deselect()
 	{
 		Status ^= SelectionStatus.Selected;
 	}
 
-	public void OnHoverExit()
+	public void HoverExit()
 	{
 		Status ^= SelectionStatus.Hovered;
 	}
 
-	public void OnHoverEnter()
+	public void HoverEnter()
 	{
 		Status |= SelectionStatus.Hovered;
 	}
