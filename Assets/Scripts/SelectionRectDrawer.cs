@@ -9,46 +9,28 @@ public class SelectionRectDrawer : MonoBehaviour
     [SerializeField] private Color borderColor = Color.white;
     [SerializeField] private Color backgroundColor = Color.clear;
 
-    private Material _selectionRectMaterial;
-    public Material selectionRectMaterial
-    {
-        get
-        {
-            return _selectionRectMaterial ??= new Material(Shader.Find("Custom/SelectionRect"));
-        }
-    }
-    private Texture2D _rectTexture;
-    private Texture2D rectTexture
-    {
-        get
-        {
-            if (_rectTexture == null)
-            {
-                _rectTexture = new Texture2D(1, 1);
-                _rectTexture.SetPixel(0, 0, Color.white);
-                _rectTexture.Apply();
-            }
-            return _rectTexture;
-        }
-    }
+    private Material selectionRectMaterial;    
+    private Texture2D rectTexture;
+   
 
-    private void OnGUI()
+	private void Awake()
+	{
+		selectionRectMaterial = new Material(Shader.Find("Custom/SelectionRect"));
+		selectionRectMaterial.SetFloat("_BorderPixelSize", borderPixelSize);
+		selectionRectMaterial.SetColor("_BorderColor", borderColor);
+		selectionRectMaterial.SetColor("_BackgroundColor", backgroundColor);
+		rectTexture = new Texture2D(1, 1);
+		rectTexture.SetPixel(0, 0, Color.white);
+		rectTexture.Apply();
+	}
+
+	private void OnGUI()
     {
         if (Event.current.type == EventType.Repaint)
         {
             var rect = selector.SelectionRect;
             rect.y = Screen.height - rect.y - rect.height;
             Graphics.DrawTexture(rect, rectTexture, selectionRectMaterial, 0);
-        }
-    }
-    private void OnValidate()
-    {
-        borderPixelSize = Mathf.Max(borderPixelSize, 0);
-        if (selectionRectMaterial != null)
-        {
-            selectionRectMaterial.SetFloat("_BorderPixelSize", borderPixelSize);
-            selectionRectMaterial.SetColor("_BorderColor", borderColor);
-            selectionRectMaterial.SetColor("_BackgroundColor", backgroundColor);
         }
     }
 }
