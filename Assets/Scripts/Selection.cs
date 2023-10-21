@@ -49,15 +49,16 @@ public static class Selection
 	{
 		return selectables.Remove(selectable.ID);
 	}
-	public static void Set(HashSet<uint> ids)
+	public static void Set(IEnumerable<uint> ids)
 	{
 		HashSet<uint> old = new(active);
+		HashSet<uint> set = new(ids);
 		old.ExceptWith(ids);
-		ids.ExceptWith(active);
+		set.ExceptWith(active);
 		Remove(old);
-		Add(ids);
+		Add(set);
 	}
-	public static void Remove(HashSet<uint> ids)
+	public static void Remove(IEnumerable<uint> ids)
 	{
 		foreach (var id in ids)
 		{
@@ -65,13 +66,13 @@ public static class Selection
 			{
 				if (active.Remove(id))
 				{
-					selectables[id].OnDeselect();
+					selectables[id].Deselect();
 					OnDeselect?.Invoke(selectables[id]);
 				}
 			}
 		}
 	}
-	public static void Add(HashSet<uint> ids)
+	public static void Add(IEnumerable<uint> ids)
 	{
 		foreach (uint id in ids)
 		{
@@ -79,18 +80,18 @@ public static class Selection
 			{
 				if (active.Add(id))
 				{
-					selectables[id].OnSelect();
+					selectables[id].Select();
 					OnSelect?.Invoke(selectables[id]);
 				}
 			}
 		}
 	}
-	public static void SetHover(HashSet<uint> ids)
+	public static void SetHover(IEnumerable<uint> ids)
 	{
 		HashSet<uint> old = new(hover);
-		HashSet<uint> copy = new(ids);
-		old.ExceptWith(copy);
-		copy.ExceptWith(hover);
+		HashSet<uint> set = new(ids);
+		old.ExceptWith(set);
+		set.ExceptWith(hover);
 
 		foreach (var id in old)
 		{
@@ -98,18 +99,18 @@ public static class Selection
 			{
 				if(hover.Remove(id))
 				{ 
-					selectables[id].OnHoverExit();
+					selectables[id].HoverExit();
 					OnHoverExit?.Invoke(selectables[id]);
 				}
 			}
 		}
-		foreach (var id in copy)
+		foreach (var id in set)
 		{
 			if (selectables.ContainsKey(id))
 			{
 				if (hover.Add(id))
 				{
-					selectables[id].OnHoverEnter();
+					selectables[id].HoverEnter();
 					OnHoverEnter?.Invoke(selectables[id]);
 				}
 			}

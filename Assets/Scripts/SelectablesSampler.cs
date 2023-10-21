@@ -5,7 +5,7 @@ using UnityEngine.Rendering;
 
 public static class SelectablesSampler
 {
-	public static RenderTexture IDMap;
+	public static RenderTexture IDMap { get; set; }
 	public static int DownscaleFactor { get; set; }
 
 	private static ComputeBuffer outputBuffer;
@@ -39,19 +39,20 @@ public static class SelectablesSampler
 		return id;
 
 	}
-	public static async void Sample(Rect region, Action<HashSet<uint>> callback)
+	public static async Awaitable<IEnumerable<uint>> Sample(Rect region)
 	{
 		if (IDMap)
 		{
 			if (region.width >= 1 && region.height >= 1)
 			{
-				callback(await SampleAtRegion(region));
+				return await SampleAtRegion(region);
 			}
-			else callback(new HashSet<uint>(new uint[] { await SampleAtPosition(region.position) }));
+			return new uint[] { await SampleAtPosition(region.position) };
 		}
+		return new uint[] {};
 	}
 
-	public static async Awaitable<HashSet<uint>> SampleAtRegion(Rect region)
+	public static async Awaitable<IEnumerable<uint>> SampleAtRegion(Rect region)
 	{
 		(int x, int y) = DownScale(region.position);
 		(int width, int height) = DownScale(region.size);
@@ -64,7 +65,6 @@ public static class SelectablesSampler
 		computeShader.SetTextureFromGlobal(mainKernelID, "_SelectablesID", "_SelectablesID");
 		computeShader.SetVector("Rect", new Vector4(region.x, region.y, region.width, region.height));
 		computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt(Selection.Selectables.Count + 1 / 64f), 1, 1);
-
 		var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(region.width / 8f), Mathf.CeilToInt(region.height / 8f));
 		computeShader.Dispatch(mainKernelID, threadGroupsX, threadGroupsY, 1);
 
@@ -72,7 +72,7 @@ public static class SelectablesSampler
 		var result = request.GetData<uint>();
 		outputBuffer?.Dispose();
 
-		HashSet<uint> ids = new();
+		List<uint> ids = new();
 		for (uint i = 1; i < result.Length; i++)
 		{
 			if (result[(int)i] > 0)

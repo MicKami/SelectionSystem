@@ -9,9 +9,10 @@ public class Selector : MonoBehaviour
 	[SerializeField]
 	private KeyCode RemoveFromSelectionKey = KeyCode.LeftControl;
 
-	public bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
+	private Vector2 dragBeginPosition;
 	private bool AddModifierPressed => Input.GetKey(AddToSelectionKey);
 	private bool RemoveModifierPressed => Input.GetKey(RemoveFromSelectionKey);
+	public bool IsDragging => SelectionRect.size.x >= 1 && SelectionRect.size.y >= 1 && Input.GetMouseButton(0);
 	public Rect SelectionRect
 	{
 		get
@@ -28,10 +29,8 @@ public class Selector : MonoBehaviour
 		}
 	}
 
-	private Vector2 dragBeginPosition;
-	private bool mouseUp;
 
-	private void Update()
+	private async void Update()
 	{
 		if (Input.GetMouseButtonDown(0))
 		{
@@ -39,14 +38,14 @@ public class Selector : MonoBehaviour
 		}
 		if (IsMouseWithinScreen() || IsDragging)
 		{
-			SelectablesSampler.Sample(SelectionRect, HandleSelection);
+			var ids = await SelectablesSampler.Sample(SelectionRect);
+			HandleSelection(ids);
 		}
-		mouseUp = Input.GetMouseButtonUp(0);
 	}
-	private void HandleSelection(HashSet<uint> ids)
+	private void HandleSelection(IEnumerable<uint> ids)
 	{
 		Selection.SetHover(ids);
-		if (mouseUp)
+		if (Input.GetMouseButtonUp(0))
 		{
 			if (AddModifierPressed)
 			{
@@ -59,13 +58,13 @@ public class Selector : MonoBehaviour
 			else Selection.Set(ids);
 		}
 	}
+
 	private bool IsMouseWithinScreen()
 	{
 		Vector2 position = ClampedMousePosition();
 		return position.x >= 0 && ((int)position.x) < (Screen.width - 1) &&
 			   position.y >= 0 && ((int)position.y) < (Screen.height - 1);
 	}
-
 	private Vector2 ClampedMousePosition()
 	{
 		return Vector2.Max(Vector2.zero, Vector2.Min(new Vector2(Mathf.Ceil(Input.mousePosition.x), Mathf.Ceil(Input.mousePosition.y)), new Vector2(Screen.width, Screen.height)));
