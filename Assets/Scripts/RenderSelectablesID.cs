@@ -10,7 +10,6 @@ public class RenderSelectablesID : ScriptableRendererFeature
 		private List<ShaderTagId> shaderTagsList = new();
 		private FilteringSettings filteringSettings;
 		private RTHandle selectablesID;
-		private RTHandle depthCopy;
 		private readonly int downscaleFactor;
 
 		public CustomRenderPass(int layer, string name, int downscaleFactor)
@@ -25,21 +24,20 @@ public class RenderSelectablesID : ScriptableRendererFeature
 
 		public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
 		{
-            var desc = renderingData.cameraData.cameraTargetDescriptor;
+			var desc = renderingData.cameraData.cameraTargetDescriptor;
 			for (int i = 0; i < downscaleFactor; i++)
 			{
 				desc.width /= 2;
 				desc.height /= 2;
 			}
-            desc.msaaSamples = 1;
-            desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
-            desc.depthBufferBits = 0;
-            desc.autoGenerateMips = false;
+			desc.msaaSamples = 1;
+			desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
+			desc.autoGenerateMips = false;
+			desc.depthBufferBits = 0;
+			desc.enableRandomWrite = true;
 			var depth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
-            RenderingUtils.ReAllocateIfNeeded(ref selectablesID, desc, FilterMode.Point);
-            RenderingUtils.ReAllocateIfNeeded(ref depthCopy, desc, FilterMode.Bilinear);
-			Blitter.BlitCameraTexture(cmd, depth, depthCopy);
-			ConfigureTarget(selectablesID, depthCopy);
+			RenderingUtils.ReAllocateIfNeeded(ref selectablesID, desc, FilterMode.Point);
+			ConfigureTarget(selectablesID, depth);
 			ConfigureClear(ClearFlag.Color, Color.clear);
 
 		}
