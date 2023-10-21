@@ -19,8 +19,8 @@ MonoBehaviour:
       m_Bits: 128
     overrideMaterial: {fileID: 0}
     steps: 2
-    diagonal: 0
-    color: {r: 1, g: 0.33333334, b: 0, a: 1}
+    diagonal: 1
+    color: {r: 1, g: 0, b: 0, a: 1}
     dilateMaterial: {fileID: 0}
     blitMaterial: {fileID: 0}
 --- !u!114 &-8024946333184870151
@@ -42,8 +42,8 @@ MonoBehaviour:
       m_Bits: 256
     overrideMaterial: {fileID: 0}
     steps: 2
-    diagonal: 0
-    color: {r: 0.9502263, g: 0, b: 1, a: 1}
+    diagonal: 1
+    color: {r: 1, g: 0.4, b: 0, a: 1}
     dilateMaterial: {fileID: 0}
     blitMaterial: {fileID: 0}
 --- !u!114 &-6017222749625702599
@@ -163,9 +163,9 @@ MonoBehaviour:
     AfterOpaque: 0
     Source: 1
     NormalSamples: 1
-    Intensity: 3
+    Intensity: 1
     DirectLightingStrength: 0.05
-    Radius: 0.75
+    Radius: 1
     Samples: 0
     BlurQuality: 0
     Falloff: 100
