@@ -15,7 +15,7 @@ public class SelectionRectDrawer : MonoBehaviour
 
 	private void Awake()
 	{
-		selectionRectMaterial = new Material(Shader.Find("Custom/SelectionRect"));
+		selectionRectMaterial = new Material(Shader.Find("Hidden/SelectionRect"));
 		selectionRectMaterial.SetFloat("_BorderPixelSize", borderPixelSize);
 		selectionRectMaterial.SetColor("_BorderColor", borderColor);
 		selectionRectMaterial.SetColor("_BackgroundColor", backgroundColor);
