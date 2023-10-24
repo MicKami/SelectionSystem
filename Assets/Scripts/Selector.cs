@@ -22,7 +22,7 @@ public class Selector : MonoBehaviour
 				var clampedMousePos = ClampedMousePosition();
 				Vector2 min = Vector2.Min(dragBeginPosition, clampedMousePos);
 				Vector2 max = Vector2.Max(dragBeginPosition, clampedMousePos);
-				Vector2 size = max - min;
+				Vector2 size = max - min + Vector2.one;
 				return new Rect(new Vector2(min.x, min.y), size);
 			}
 			else return new Rect(ClampedMousePosition(), Vector2.zero);
@@ -62,11 +62,11 @@ public class Selector : MonoBehaviour
 	private bool IsMouseWithinScreen()
 	{
 		Vector2 position = ClampedMousePosition();
-		return position.x >= 0 && ((int)position.x) < (Screen.width - 1) &&
-			   position.y >= 0 && ((int)position.y) < (Screen.height - 1);
+		return position.x >= 0 && ((int)position.x) <= (Screen.width - 1) &&
+			   position.y >= 0 && ((int)position.y) <= (Screen.height - 1);
 	}
 	private Vector2 ClampedMousePosition()
 	{
-		return Vector2.Max(Vector2.zero, Vector2.Min(new Vector2(Mathf.Ceil(Input.mousePosition.x), Mathf.Ceil(Input.mousePosition.y)), new Vector2(Screen.width, Screen.height)));
+		return Vector2.Max(Vector2.zero, Vector2.Min(new Vector2(Mathf.Floor(Input.mousePosition.x), Mathf.Floor(Input.mousePosition.y)), new Vector2(Screen.width - 1, Screen.height - 1)));
 	}
 }
