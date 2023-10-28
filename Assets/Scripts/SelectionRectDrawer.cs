@@ -26,7 +26,7 @@ public class SelectionRectDrawer : MonoBehaviour
 
 	private void OnGUI()
     {
-        if (Event.current.type == EventType.Repaint)
+        if (Event.current.type == EventType.Repaint && selector.IsDragging)
         {
             var rect = selector.SelectionRect;
             rect.y = Screen.height - rect.y - rect.height;
