@@ -10,6 +10,7 @@ public class RenderSelectablesID : ScriptableRendererFeature
 		private List<ShaderTagId> shaderTagsList = new();
 		private FilteringSettings filteringSettings;
 		private RTHandle selectablesID;
+		private RTHandle depthCopy;
 		private readonly int downscaleFactor;
 
 		public CustomRenderPass(int layer, string name, int downscaleFactor)
@@ -30,14 +31,16 @@ public class RenderSelectablesID : ScriptableRendererFeature
 				desc.width /= 2;
 				desc.height /= 2;
 			}
+			var depth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
+			RenderingUtils.ReAllocateIfNeeded(ref depthCopy, desc);
+			Blitter.BlitCameraTexture(cmd, depth, depthCopy);
 			desc.msaaSamples = 1;
 			desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
 			desc.autoGenerateMips = false;
 			desc.depthBufferBits = 0;
 			desc.enableRandomWrite = true;
-			var depth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
 			RenderingUtils.ReAllocateIfNeeded(ref selectablesID, desc, FilterMode.Point);
-			ConfigureTarget(selectablesID, depth);
+			ConfigureTarget(selectablesID, depthCopy);
 			ConfigureClear(ClearFlag.Color, Color.clear);
 
 		}
