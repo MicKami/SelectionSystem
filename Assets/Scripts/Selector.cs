@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Selector : MonoBehaviour
 {
@@ -10,9 +11,10 @@ public class Selector : MonoBehaviour
 	private KeyCode RemoveFromSelectionKey = KeyCode.LeftControl;
 
 	private Vector2 dragBeginPosition;
+	private bool dragFromUI;
 	private bool AddModifierPressed => Input.GetKey(AddToSelectionKey);
 	private bool RemoveModifierPressed => Input.GetKey(RemoveFromSelectionKey);
-	public bool IsDragging => SelectionRect.size.x > 1 || SelectionRect.size.y > 1 && Input.GetMouseButton(0);
+	public bool IsDragging => (SelectionRect.size.x > 1 || SelectionRect.size.y > 1) && Input.GetMouseButton(0) && !dragFromUI;
 	public Rect SelectionRect
 	{
 		get
@@ -35,6 +37,7 @@ public class Selector : MonoBehaviour
 		if (Input.GetMouseButtonDown(0))
 		{
 			dragBeginPosition = ClampedMousePosition();
+			dragFromUI = EventSystem.current.IsPointerOverGameObject();
 		}
 		if (IsMouseWithinScreen() || IsDragging)
 		{
