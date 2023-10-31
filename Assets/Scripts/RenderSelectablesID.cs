@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Rendering.Universal.Internal;
 
 public class RenderSelectablesID : ScriptableRendererFeature
 {
@@ -10,7 +11,7 @@ public class RenderSelectablesID : ScriptableRendererFeature
 		private List<ShaderTagId> shaderTagsList = new();
 		private FilteringSettings filteringSettings;
 		private RTHandle selectablesID;
-		private RTHandle depthCopy;
+		private RTHandle depth;
 		private readonly int downscaleFactor;
 
 		public CustomRenderPass(int layer, string name, int downscaleFactor)
@@ -21,28 +22,29 @@ public class RenderSelectablesID : ScriptableRendererFeature
 
 			profilingSampler = new ProfilingSampler(name);
 			this.downscaleFactor = downscaleFactor;
+			
+		}
+
+		public void Setup(RTHandle depth)
+		{
+			this.depth = depth;
 		}
 
 		public override void OnCameraSetup(CommandBuffer cmd, ref RenderingData renderingData)
 		{
-			var desc = renderingData.cameraData.cameraTargetDescriptor;
-			for (int i = 0; i < downscaleFactor; i++)
-			{
-				desc.width /= 2;
-				desc.height /= 2;
-			}
-			var depth = renderingData.cameraData.renderer.cameraDepthTargetHandle;
-			RenderingUtils.ReAllocateIfNeeded(ref depthCopy, desc);
-			Blitter.BlitCameraTexture(cmd, depth, depthCopy);
-			desc.msaaSamples = 1;
-			desc.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
-			desc.autoGenerateMips = false;
-			desc.depthBufferBits = 0;
-			desc.enableRandomWrite = true;
-			RenderingUtils.ReAllocateIfNeeded(ref selectablesID, desc, FilterMode.Point);
-			ConfigureTarget(selectablesID, depthCopy);
-			ConfigureClear(ClearFlag.Color, Color.clear);
+			var descriptor = renderingData.cameraData.cameraTargetDescriptor;
+			descriptor.width >>= downscaleFactor;
+			descriptor.height >>= downscaleFactor;
 
+			descriptor.msaaSamples = 1;
+			descriptor.graphicsFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.R8G8B8A8_SRGB;
+			descriptor.autoGenerateMips = false;
+			descriptor.depthBufferBits = 0;
+			descriptor.enableRandomWrite = true;
+			RenderingUtils.ReAllocateIfNeeded(ref selectablesID, descriptor, FilterMode.Point);
+
+			ConfigureTarget(selectablesID, depth);
+			ConfigureClear(ClearFlag.Color, Color.clear);
 		}
 
 		public override void Execute(ScriptableRenderContext context, ref RenderingData renderingData)
@@ -69,18 +71,34 @@ public class RenderSelectablesID : ScriptableRendererFeature
 			cmd.Clear();
 			CommandBufferPool.Release(cmd);
 		}
-		
+
 	}
 
 	public LayerMask layer;
 	[Range(0, 2)]
 	public int downscaleFactor;
 	CustomRenderPass m_ScriptablePass;
-
+	DepthOnlyPass depthOnlyPass;
+	RTHandle depth;
 	public override void Create()
 	{
 		m_ScriptablePass = new CustomRenderPass(layer, name, downscaleFactor);
 		m_ScriptablePass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
+
+		depthOnlyPass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPostProcessing, RenderQueueRange.opaque, ~0);
+	}
+	public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
+	{
+		var descriptor = renderingData.cameraData.cameraTargetDescriptor;
+		descriptor.msaaSamples = 1;
+		descriptor.width >>= downscaleFactor;
+		descriptor.height >>= downscaleFactor;
+		descriptor.depthBufferBits = 32;
+
+		RenderingUtils.ReAllocateIfNeeded(ref depth, descriptor);
+
+		depthOnlyPass.Setup(descriptor, depth); 
+		m_ScriptablePass.Setup(depth);
 	}
 
 	public override void AddRenderPasses(ScriptableRenderer renderer, ref RenderingData renderingData)
@@ -88,6 +106,8 @@ public class RenderSelectablesID : ScriptableRendererFeature
 		CameraType cameraType = renderingData.cameraData.cameraType;
 		if (cameraType == CameraType.Preview) return;
 		if (cameraType == CameraType.SceneView) return;
+
+		renderer.EnqueuePass(depthOnlyPass); 
 		renderer.EnqueuePass(m_ScriptablePass);
 	}
 }
