@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
 
 public static class SelectablesSampler
 {
@@ -21,17 +19,7 @@ public static class SelectablesSampler
 		initializedKernelID = computeShader.FindKernel("Initialize");
 		mainKernelID = computeShader.FindKernel("Main");
 	}
-
-	public static (int x, int y) DownscaleCeil(Vector2 value)
-	{
-		for (int i = 0; i < DownscaleFactor; i++)
-		{
-			value /= 2;
-		}
-		return (Mathf.CeilToInt(value.x), Mathf.CeilToInt(value.y));
-	}
-
-	public static (int x, int y) DownscaleFloor(Vector2 value)
+	public static (int x, int y) Downscale(Vector2 value)
 	{
 		for (int i = 0; i < DownscaleFactor; i++)
 		{
@@ -39,35 +27,23 @@ public static class SelectablesSampler
 		}
 		return (Mathf.FloorToInt(value.x), Mathf.FloorToInt(value.y));
 	}
-
-	private static Vector2 FixRounding(Vector2 pos)
+	private static Vector2 FixRounding(Vector2 position)
 	{
 		if (DownscaleFactor > 0)
 		{
 			if (Screen.width % 2 == 1)
 			{
-				pos.x *= 1 - (1.0f / (Screen.width + 1));
-				pos.x = Mathf.Floor(pos.x + 0.5f);
+				position.x *= 1 - (1.0f / (Screen.width + 1));
+				position.x = Mathf.Floor(position.x + 0.5f);
 			}
 			if (Screen.height % 2 == 1)
 			{
-				pos.y *= 1 - (1.0f / (Screen.height + 1));
-				pos.y = Mathf.Floor(pos.y + 0.5f);
+				position.y *= 1 - (1.0f / (Screen.height + 1));
+				position.y = Mathf.Floor(position.y + 0.5f);
 			}
 		}
-		return pos;
+		return position;
 	}
-
-	public static async Awaitable<uint> SampleAtPosition(Vector2 position)
-	{
-		(int x, int y) = DownscaleFloor(FixRounding(position));
-		var request = await AsyncGPUReadback.RequestAsync(IDMap, 0, x, 1, y, 1, 0, 1);
-		var data = request.GetData<Color32>();
-		uint id = SelectionUtility.ColorToID(data[0]);
-		return id;
-
-	}
-
 	public static async Awaitable<IEnumerable<uint>> Sample(Rect region)
 	{
 		if (IDMap)
@@ -80,16 +56,24 @@ public static class SelectablesSampler
 		}
 		return new uint[] { };
 	}
+	public static async Awaitable<uint> SampleAtPosition(Vector2 position)
+	{
+		(int x, int y) = Downscale(FixRounding(position));
+		y = Mathf.Clamp(y, 0, (Screen.height - (1 << DownscaleFactor)) >> DownscaleFactor);
+		x = Mathf.Clamp(x, 0, (Screen.width - (1 << DownscaleFactor)) >> DownscaleFactor);
+		var request = await AsyncGPUReadback.RequestAsync(IDMap, 0, x, 1, y, 1, 0, 1);
+		var data = request.GetData<Color32>();
+		uint id = SelectionUtility.ColorToID(data[0]);
+		return id;
 
+	}
 	public static async Awaitable<IEnumerable<uint>> SampleAtRegion(Rect region)
 	{
-		(int x1, int y1) = DownscaleFloor(FixRounding(region.min));
-		(int x2, int y2) = DownscaleCeil(FixRounding(region.max));
-
+		(int x1, int y1) = Downscale(FixRounding(region.min));
+		Vector2 offset = Vector2.one * ((1 << DownscaleFactor) - 1);
+		(int x2, int y2) = Downscale(FixRounding(region.max) + offset);
 		(int width, int height) = (x2 - x1, y2 - y1);
 		var scaledRegion = new Rect(x1, y1, width, height);
-
-		(int widthCeil, int heightCeil) = DownscaleCeil(region.size);
 
 		outputBuffer?.Dispose();
 		outputBuffer = new ComputeBuffer(Selection.Selectables.Count + 1, sizeof(uint));
@@ -99,9 +83,8 @@ public static class SelectablesSampler
 		computeShader.SetTextureFromGlobal(mainKernelID, "_SelectablesID", "_SelectablesID");
 		computeShader.SetVector("Rect", new Vector4(scaledRegion.x, scaledRegion.y, scaledRegion.width, scaledRegion.height));
 		computeShader.Dispatch(initializedKernelID, Mathf.CeilToInt(Selection.Selectables.Count + 1 / 64f), 1, 1);
-		var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt(widthCeil / 8f), Mathf.CeilToInt(heightCeil / 8f));
+		var (threadGroupsX, threadGroupsY) = (Mathf.CeilToInt((scaledRegion.width + 1) / 8f), Mathf.CeilToInt((scaledRegion.height + 1) / 8f));
 		computeShader.Dispatch(mainKernelID, threadGroupsX, threadGroupsY, 1);
-
 		var request = await AsyncGPUReadback.RequestAsync(outputBuffer);
 		var result = request.GetData<uint>();
 		outputBuffer?.Dispose();
