@@ -12,7 +12,7 @@ public class Selectable : MonoBehaviour
 	[RuntimeInitializeOnLoadMethod(loadType: RuntimeInitializeLoadType.BeforeSceneLoad)]
 	private static void Initialize()
 	{
-		SceneManager.activeSceneChanged += (_, _) => _nextID = 0; ;
+		SceneManager.activeSceneChanged += (_, _) => _nextID = 0;
 	}
 
 	[field: Layer, SerializeField]

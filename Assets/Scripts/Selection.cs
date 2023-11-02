@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEditor;
+using UnityEngine.SceneManagement;
+using UnityEngine;
 
 public static class Selection
 {
@@ -41,6 +42,15 @@ public static class Selection
 		get { return new List<uint>(hover); }
 	}
 
+	[RuntimeInitializeOnLoadMethod(loadType: RuntimeInitializeLoadType.BeforeSceneLoad)]
+	private static void Initialize()
+	{
+		SceneManager.activeSceneChanged += (_, _) =>
+		{
+			active.Clear();
+			hover.Clear();
+		};
+	}
 	public static bool Register(Selectable selectable)
 	{
 		return selectables.TryAdd(selectable.ID, selectable);
@@ -97,8 +107,8 @@ public static class Selection
 		{
 			if (selectables.ContainsKey(id))
 			{
-				if(hover.Remove(id))
-				{ 
+				if (hover.Remove(id))
+				{
 					selectables[id].HoverExit();
 					OnHoverExit?.Invoke(selectables[id]);
 				}
@@ -116,22 +126,4 @@ public static class Selection
 			}
 		}
 	}
-
-#if UNITY_EDITOR
-	[InitializeOnLoadMethod]
-	private static void Initialize()
-	{
-		EditorApplication.playModeStateChanged += EditorApplication_playModeStateChanged;
-	}
-
-	private static void EditorApplication_playModeStateChanged(PlayModeStateChange state)
-	{
-		if (state == PlayModeStateChange.ExitingPlayMode)
-		{
-			active.Clear();
-			hover.Clear();
-		}
-	}
-
-#endif
 }
