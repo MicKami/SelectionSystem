@@ -1,15 +1,17 @@
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
 
-public class ShowSelectionMask : MonoBehaviour
+public class SelectableDebugView : MonoBehaviour
 {
 	private Material material;
-	[field: SerializeField]
-	public bool Enabled { get; set; }
+	[SerializeField]
+	private Toggle UI_Toggle;
+	public static bool Enabled { get; set; }
 	private void Awake()
 	{
-		material = new Material(Shader.Find("Hidden/ShowSelectionMask"));
+		material = new Material(Shader.Find("Hidden/SelectableDebugView"));
+		UI_Toggle.isOn = Enabled;
 	}
 	private void OnEnable()
 	{
@@ -33,7 +35,7 @@ public class ShowSelectionMask : MonoBehaviour
 	{
 		if(Input.GetKeyDown(KeyCode.Space))
 		{
-			Enabled = !Enabled;
-		}	
+			UI_Toggle.isOn = !UI_Toggle.isOn;
+		}
 	}
 }
