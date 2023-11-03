@@ -1,4 +1,4 @@
-Shader "Custom/Lit"
+Shader "Universal Render Pipeline/Lit Selectable"
 {
     Properties
     {
@@ -473,9 +473,10 @@ Shader "Custom/Lit"
             ENDHLSL
         }
         
+        // Extra added pass to render unique selectable ID colors using CBUFFER property to keep SRP Batcher
         Pass
         {
-            Name "Unlit"
+            Name "SelectionIDColor"
             Tags
             {
                 "LightMode" = "Unlit" 

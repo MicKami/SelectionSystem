@@ -4,10 +4,12 @@ using UnityEngine.UI;
 
 public class SelectableDebugView : MonoBehaviour
 {
-	private Material material;
+	public static bool Enabled { get; set; }
+
 	[SerializeField]
 	private Toggle UI_Toggle;
-	public static bool Enabled { get; set; }
+	private Material material;
+
 	private void Awake()
 	{
 		material = new Material(Shader.Find("Hidden/SelectableDebugView"));
@@ -25,7 +27,7 @@ public class SelectableDebugView : MonoBehaviour
 	{		
 		if(!Enabled) return;
 
-		var cmd = CommandBufferPool.Get();
+		var cmd = CommandBufferPool.Get("SelectableDebugView");
 		cmd.Blit(BuiltinRenderTextureType.CurrentActive, BuiltinRenderTextureType.CurrentActive, material);
 		context.ExecuteCommandBuffer(cmd);
 		context.Submit();

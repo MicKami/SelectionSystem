@@ -41,7 +41,7 @@ public class Selector : MonoBehaviour
 		}
 		if (IsMouseWithinScreen() || IsDragging)
 		{
-			var ids = await SelectablesSampler.Sample(SelectionRect);
+			var ids = await SelectableIDMapSampler.Sample(SelectionRect);
 			HandleSelection(ids);
 		}
 	}

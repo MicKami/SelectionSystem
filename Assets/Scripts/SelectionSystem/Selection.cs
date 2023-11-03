@@ -11,7 +11,6 @@ public static class Selection
 	public static event Action<Selectable> OnHoverEnter;
 	public static event Action<Selectable> OnHoverExit;
 
-
 	private static Dictionary<uint, Selectable> _selectables;
 	private static Dictionary<uint, Selectable> selectables
 	{

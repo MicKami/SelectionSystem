@@ -5,16 +5,20 @@ using UnityEngine.UI;
 
 public class DownscaleSettingSlider : MonoBehaviour
 {
-	[SerializeField] UniversalRendererData rendererData;
-	[SerializeField] TextMeshProUGUI text;	
-	[SerializeField] Slider slider;
-	RenderSelectablesID renderFeature;
+	[SerializeField]
+	private UniversalRendererData rendererData;
+	[SerializeField]
+	private TextMeshProUGUI text;
+	[SerializeField]
+	private Slider slider;
+
+	private SelectableIDMapRendererFeature renderFeature;
 
 	private void Awake()
 	{
-		renderFeature = rendererData.rendererFeatures.Find(x => x is RenderSelectablesID) as RenderSelectablesID;
+		renderFeature = rendererData.rendererFeatures.Find(x => x is SelectableIDMapRendererFeature) as SelectableIDMapRendererFeature;
 		slider.value = renderFeature.downscaleFactor;
-	}  
+	}
 
 	public void SetDownscaleFactor(float factor)
 	{

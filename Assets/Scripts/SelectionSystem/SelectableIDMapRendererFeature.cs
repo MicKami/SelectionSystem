@@ -4,9 +4,9 @@ using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.Rendering.Universal.Internal;
 
-public class RenderSelectablesID : ScriptableRendererFeature
+public class SelectableIDMapRendererFeature : ScriptableRendererFeature
 {
-	class CustomRenderPass : ScriptableRenderPass
+	class SelectableIDMapRenderPass : ScriptableRenderPass
 	{
 		private List<ShaderTagId> shaderTagsList = new();
 		private FilteringSettings filteringSettings;
@@ -14,7 +14,7 @@ public class RenderSelectablesID : ScriptableRendererFeature
 		private RTHandle depth;
 		private readonly int downscaleFactor;
 
-		public CustomRenderPass(int layer, string name, int downscaleFactor)
+		public SelectableIDMapRenderPass(int layer, string name, int downscaleFactor)
 		{
 			filteringSettings = new FilteringSettings(RenderQueueRange.opaque, layer);
 
@@ -61,8 +61,8 @@ public class RenderSelectablesID : ScriptableRendererFeature
 				RendererList rendererList = context.CreateRendererList(ref rendererListParams);
 				cmd.DrawRendererList(rendererList);
 
-				SelectablesSampler.IDMap = selectablesID.rt;
-				SelectablesSampler.DownscaleFactor = downscaleFactor;
+				SelectableIDMapSampler.SelectableIDMap = selectablesID.rt;
+				SelectableIDMapSampler.DownscaleFactor = downscaleFactor;
 				Shader.SetGlobalTexture("_SelectablesID", selectablesID.rt);
 
 
@@ -77,12 +77,12 @@ public class RenderSelectablesID : ScriptableRendererFeature
 	public LayerMask layer;
 	[Range(0, 2)]
 	public int downscaleFactor;
-	CustomRenderPass m_ScriptablePass;
+	SelectableIDMapRenderPass m_ScriptablePass;
 	DepthOnlyPass depthOnlyPass;
 	RTHandle depth;
 	public override void Create()
 	{
-		m_ScriptablePass = new CustomRenderPass(layer, name, downscaleFactor);
+		m_ScriptablePass = new SelectableIDMapRenderPass(layer, name, downscaleFactor);
 		m_ScriptablePass.renderPassEvent = RenderPassEvent.AfterRenderingPostProcessing;
 
 		depthOnlyPass = new DepthOnlyPass(RenderPassEvent.BeforeRenderingPostProcessing, RenderQueueRange.opaque, ~0);

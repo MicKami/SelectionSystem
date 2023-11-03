@@ -2,9 +2,9 @@ using UnityEngine;
 
 public static class SelectionUtility
 {
-    public static Color32 IDToColor(uint number)
+    public static Color32 IDToColor(uint id)
     {
-        var intBytes = System.BitConverter.GetBytes(number);
+        var intBytes = System.BitConverter.GetBytes(id);
 
         return new Color32(intBytes[0], intBytes[1], intBytes[2], intBytes[3]);
     }

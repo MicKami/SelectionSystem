@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class ClickToMove : MonoBehaviour
 {
-	public float spacing;
+	[SerializeField]
+	private float spacing;
 
 	private void Update()
 	{
@@ -14,7 +15,7 @@ public class ClickToMove : MonoBehaviour
 			{
 				var selectedUnits = Unit.SelectedUnits;
 				if (selectedUnits.Count == 0) return;
-				var points = AxialToWorld(GetAxialCoords(selectedUnits.Count));
+				var points = UnitFormation_Hexagon(selectedUnits.Count);
 
 				for (int i = 0; i < selectedUnits.Count; i++)
 				{
@@ -26,7 +27,12 @@ public class ClickToMove : MonoBehaviour
 		}
 	}
 
-	Vector2Int[] axialDirections =
+	private Vector3[] UnitFormation_Hexagon(int count)
+	{
+		return AxialToWorld(GetAxialCoords(count));
+	}
+
+	readonly Vector2Int[] axialDirections =
 	{
 		new Vector2Int(1, 0),
 		new Vector2Int(1, -1),

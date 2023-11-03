@@ -6,6 +6,7 @@ public class Unit : MonoBehaviour
 {
 	private static HashSet<Unit> _selectedUnits = new();
 	public static IReadOnlyList<Unit> SelectedUnits => new List<Unit>(_selectedUnits);
+
 	private Selectable selectable;
 	private NavMeshAgent agent;
 	public bool IsSelected => selectable.Status.HasFlag(SelectionStatus.Selected);

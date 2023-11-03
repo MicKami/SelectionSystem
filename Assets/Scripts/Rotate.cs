@@ -1,14 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Rotate : MonoBehaviour
 {
-	public float angle;
-	public Vector3 axis;
+	[SerializeField]
+	private float angle;
+	[SerializeField]
+	private Vector3 axis;
 
 	void Update()
-    {
-        transform.Rotate(axis, angle *  Time.deltaTime);
-    }
+	{
+		transform.Rotate(axis, angle * Time.deltaTime);
+	}
 }

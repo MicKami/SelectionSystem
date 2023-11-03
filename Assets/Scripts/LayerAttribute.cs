@@ -1,3 +1,1 @@
-using UnityEngine;
-
-public class LayerAttribute : PropertyAttribute { }
+public class LayerAttribute : UnityEngine.PropertyAttribute { }

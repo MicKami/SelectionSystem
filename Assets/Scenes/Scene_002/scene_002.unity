@@ -620,7 +620,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SelectablesLayer>k__BackingField: 6
-  <Status>k__BackingField: 0
 --- !u!114 &375655894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1041,9 +1040,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   selector: {fileID: 703230340}
-  borderPixelSize: 1
-  borderColor: {r: 0.14070843, g: 0.9622642, b: 0.39200792, a: 1}
-  backgroundColor: {r: 0.14117648, g: 0.9607844, b: 0.3921569, a: 0.101960786}
+  borderPixelSize: 2
+  borderColor: {r: 0.19920002, g: 0.8, b: 0.38344532, a: 1}
+  backgroundColor: {r: 0.20000002, g: 0.8000001, b: 0.38431376, a: 0.101960786}
 --- !u!114 &703230339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1056,8 +1055,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f93e84957207b14eb0d07db674d7625, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectedLayer: 7
-  hoverLayer: 8
+  <SelectedLayer>k__BackingField: 7
+  <HoverLayer>k__BackingField: 8
 --- !u!114 &703230340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1447,7 +1446,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SelectablesLayer>k__BackingField: 6
-  <Status>k__BackingField: 0
 --- !u!114 &1014140949
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2228,7 +2226,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SelectablesLayer>k__BackingField: 6
-  <Status>k__BackingField: 0
 --- !u!1 &1779884441
 GameObject:
   m_ObjectHideFlags: 0
@@ -2481,7 +2478,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <SelectablesLayer>k__BackingField: 6
-  <Status>k__BackingField: 0
 --- !u!65 &2019467335
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -3,9 +3,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public class RenderOutlines : ScriptableRendererFeature
+public class OutlinesRendererFeature : ScriptableRendererFeature
 {
-    class CustomRenderPass : ScriptableRenderPass
+    class OutlinesRenderPass : ScriptableRenderPass
     {
         private Settings settings;
         private FilteringSettings filteringSettings;
@@ -14,7 +14,7 @@ public class RenderOutlines : ScriptableRendererFeature
         private RTHandle outlinesDilatedRT;
         private RTHandle tempRT;
 
-        public CustomRenderPass(Settings settings, string name)
+        public OutlinesRenderPass(Settings settings, string name)
         {
             this.settings = settings;
             filteringSettings = new FilteringSettings(RenderQueueRange.opaque, settings.layerMask);
@@ -105,14 +105,14 @@ public class RenderOutlines : ScriptableRendererFeature
     }
 
     public Settings settings = new Settings();
-    private CustomRenderPass m_ScriptablePass;
+    private OutlinesRenderPass m_ScriptablePass;
 
     public override void Create()
     {
         settings.overrideMaterial = CoreUtils.CreateEngineMaterial("Universal Render Pipeline/Unlit");
         settings.dilateMaterial = CoreUtils.CreateEngineMaterial("Hidden/Dilate");
         settings.blitMaterial = CoreUtils.CreateEngineMaterial("Hidden/Final Blit");
-        m_ScriptablePass = new CustomRenderPass(settings, name);
+        m_ScriptablePass = new OutlinesRenderPass(settings, name);
         m_ScriptablePass.renderPassEvent = RenderPassEvent.BeforeRenderingPostProcessing;
     }
 

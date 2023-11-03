@@ -2,9 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public static class SelectablesSampler
+public static class SelectableIDMapSampler
 {
-	public static RenderTexture IDMap { get; set; }
+	public static RenderTexture SelectableIDMap { get; set; }
 	public static int DownscaleFactor { get; set; }
 
 	private static ComputeBuffer outputBuffer;
@@ -19,7 +19,7 @@ public static class SelectablesSampler
 		initializedKernelID = computeShader.FindKernel("Initialize");
 		mainKernelID = computeShader.FindKernel("Main");
 	}
-	public static (int x, int y) Downscale(Vector2 value)
+	private static (int x, int y) Downscale(Vector2 value)
 	{
 		for (int i = 0; i < DownscaleFactor; i++)
 		{
@@ -46,7 +46,7 @@ public static class SelectablesSampler
 	}
 	public static async Awaitable<IEnumerable<uint>> Sample(Rect region)
 	{
-		if (IDMap)
+		if (SelectableIDMap)
 		{
 			if (region.width > 1 || region.height > 1)
 			{
@@ -61,17 +61,15 @@ public static class SelectablesSampler
 		(int x, int y) = Downscale(FixRounding(position));
 		y = Mathf.Clamp(y, 0, (Screen.height - (1 << DownscaleFactor)) >> DownscaleFactor);
 		x = Mathf.Clamp(x, 0, (Screen.width - (1 << DownscaleFactor)) >> DownscaleFactor);
-		var request = await AsyncGPUReadback.RequestAsync(IDMap, 0, x, 1, y, 1, 0, 1);
+		var request = await AsyncGPUReadback.RequestAsync(SelectableIDMap, 0, x, 1, y, 1, 0, 1);
 		var data = request.GetData<Color32>();
-		uint id = SelectionUtility.ColorToID(data[0]);
-		return id;
-
+		return SelectionUtility.ColorToID(data[0]);
 	}
 	public static async Awaitable<IEnumerable<uint>> SampleAtRegion(Rect region)
 	{
 		(int x1, int y1) = Downscale(FixRounding(region.min));
-		Vector2 offset = Vector2.one * ((1 << DownscaleFactor) - 1);
-		(int x2, int y2) = Downscale(FixRounding(region.max) + offset);
+		Vector2 scaledPixelOffset = Vector2.one * ((1 << DownscaleFactor) - 1);
+		(int x2, int y2) = Downscale(FixRounding(region.max) + scaledPixelOffset);
 		(int width, int height) = (x2 - x1, y2 - y1);
 		var scaledRegion = new Rect(x1, y1, width, height);
 
