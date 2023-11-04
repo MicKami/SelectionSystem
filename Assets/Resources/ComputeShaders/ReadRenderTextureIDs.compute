@@ -1,0 +1,28 @@
+#pragma kernel Main
+#pragma kernel Initialize
+#pragma warning (disable : 3571)
+
+RWTexture2D<float4> _SelectablesID;
+RWStructuredBuffer<uint> Output;
+float4 Rect;
+
+[numthreads(8, 8, 1)]
+void Main(uint2 id : SV_DispatchThreadID)
+{
+	if (id.x < (uint)Rect.z && id.y < (uint)Rect.w)
+	{
+		float4 color = _SelectablesID[id.xy + Rect.xy];
+		uint R = uint(color.r * 255);
+		uint G = uint(color.g * 255) << 8;
+		uint B = uint(color.b * 255) << 16;
+		uint A = uint(color.a * 255) << 24;
+		uint colorToID = R + G + B + A;
+        Output[colorToID] = 1;
+    }
+}
+
+[numthreads(64, 1, 1)]
+void Initialize(uint id : SV_DispatchThreadID)
+{
+	Output[id] = 0;
+}
