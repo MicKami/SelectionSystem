@@ -63,6 +63,23 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 448
   downscaleFactor: 0
+--- !u!114 &-2208333126644038397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34fbf70f56093b6458f841b5387f247b, type: 3}
+  m_Name: SelectableIDMapRendererFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
+  layer:
+    serializedVersion: 2
+    m_Bits: 448
+  downscaleFactor: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,10 +113,10 @@ MonoBehaviour:
       type: 3}
   m_RendererFeatures:
   - {fileID: 1642938108363094143}
-  - {fileID: -6017222749625702599}
+  - {fileID: -2208333126644038397}
   - {fileID: -8024946333184870151}
   - {fileID: -8666819192180049364}
-  m_RendererFeatureMap: 7f38ef4081e3cc1639272932ca877eacf938f1f4d3a9a1902cfa910ddd45b987
+  m_RendererFeatureMap: 7f38ef4081e3cc160385a7b8b86c5ae1f938f1f4d3a9a1902cfa910ddd45b987
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}

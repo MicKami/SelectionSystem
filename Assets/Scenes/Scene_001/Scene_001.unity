@@ -4391,13 +4391,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 330585546}
-  movementSpeed: 50
+  movementSpeed: 42
   movementDuration: 0.15
   bounds: {x: 62, y: 62}
-  zoomSpeed: 700
+  zoomSpeed: 500
   minZoom: 20
   maxZoom: 80
-  zoomDuration: 0.15
+  zoomDuration: 0.1
 --- !u!1 &1690454294
 GameObject:
   m_ObjectHideFlags: 0
